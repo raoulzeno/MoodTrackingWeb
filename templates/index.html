@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mood Tracker</title>
+    </head>
+    <body>
+        <h1>Mood Tracker</h1>
+        <button id="hamburger-btn">☰ Menu</button>
+        <nav id="mobile-menu" style="display: none;">
+            <ul>
+                <li><a href="#" onclick="showView('dashboard-view')">Dashboard</a></li>
+                <li><a href="#" onclick="showView('quick-log-view')">Quick Log</a></li>
+                <li><a href="/detail">Detail Log</a></li>
+                <li><a href="/visualizations">Visualizations</a></li>
+            </ul>
+        </nav>
+        <hr>
+        <div id="dashboard-view">
+            <h2>Dashboard</h2>
+            <div>
+                <h3>Weather</h3>
+                <p id="weather-display">Fetching Weather...</p>
+            </div>
+            <hr>
+            <div>
+                <h3>Weekly Mood Score</h3>
+                <p id="mood-score">Calculating Weekly Mood Score</p>
+            </div>
+            <br>
+            <div>
+                <h3>Weekly Energy Score</h3>
+                <p id="energy-score">Calculating Weekly Energy Score</p>
+            </div>
+            <br>
+            <div>
+                <h3>Weekly Stress Score</h3>
+                <p id="stress-score">Calculating Weekly Stress Score</p>
+            </div>
+            <button onclick="showView('quick-log-view')">⚡ Quick Log</button>
+            <button onclick="window.location.href='/detail'">📝 Detail Log</button>
+            <br>
+            <button id="delete-btn" onclick="deleteEntry(this);">❌ Reset Today's Entry</button>
+        </div>
+
+        <div id="quick-log-view" style="display: none;">
+            <h2>Quick Log</h2>
+            <div>
+                <label for="quick-mood">Mood:</label><br>
+                <input type="range" id="quick-mood" min="0" max="10" value="5"><br>
+                <span id="quick-mood-value">5</span>
+            </div>
+            <br>
+            <div>
+                <label for="quick-energy">Energy:</label><br>
+                <input type="range" id="quick-energy" min="0" max="10" value="5"><br>
+                <span id="quick-energy-value">5</span>
+            </div>
+            <br>
+            <div>
+                <label for="quick-stress">Stress:</label><br>
+                <input type="range" id="quick-stress" min="0" max="10"  value="5"><br>
+                <span id="quick-stress-value">5</span>
+            </div>
+            <br>
+            <button id="save-quick-btn">Save Entry</button>
+        </div>
+
+        <script>
+            document.getElementById("hamburger-btn").addEventListener("click", function() {
+                let menu = document.getElementById("mobile-menu");
+
+                if (menu.style.display == "none") {
+                    menu.style.display = "block";
+                } else {
+                    menu.style.display = "none";
+                }
+            });
+
+            function showView(viewId) {
+                document.getElementById('dashboard-view').style.display = 'none';
+                document.getElementById('quick-log-view').style.display = 'none';
+
+                document.getElementById(viewId).style.display = 'block';
+
+                document.getElementById('mobile-menu').style.display = 'none';
+            }
+
+            const sliders = ["mood", "energy", "stress"];
+
+            sliders.forEach(metric => {
+                let slider = document.getElementById(`quick-${metric}`);
+                let display = document.getElementById(`quick-${metric}-value`);
+
+                slider.addEventListener('input', function() {
+                    display.innerText = this.value;
+                });
+            });
+
+            document.getElementById("save-quick-btn").addEventListener("click", function() {
+                const payload = {
+                    mood: document.getElementById("quick-mood").value,
+                    energy: document.getElementById("quick-energy").value,
+                    stress: document.getElementById("quick-stress").value
+                };
+
+                fetch("/save-quick-log", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(async response => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        alert(data.message);
+                        throw new Error(data.message);
+                    }
+
+                    return data;
+                })
+                .then(data => {
+                    console.log("Success:", data);
+                    alert("Entry saved successfully");
+
+                    document.getElementById("quick-mood").value = 5;
+                    document.getElementById("quick-mood-value").innerText = 5;
+                    document.getElementById("quick-energy").value = 5;
+                    document.getElementById("quick-energy-value").innerText = 5;
+                    document.getElementById("quick-stress").value = 5;
+                    document.getElementById("quick-stress-value").innerText = 5;
+
+                    showView("dashboard-view");
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    showView("dashboard-view");
+                });
+            });
+
+            let deleteTimer = null;
+            let countdownLeft = 5;
+            const deleteBtn = document.getElementById("delete-btn");
+
+            deleteBtn.addEventListener("click", function() {
+                if (deleteTimer === null) {
+                    countdownLeft = 5;
+                    deleteBtn.innerText = `Confirm Deletion (${countdownLeft}s)`;
+
+                    deleteTimer = setInterval(() => {
+                        countdownLeft--;
+
+                        if (countdownLeft > 0) {
+                            deleteBtn.innerText = `Confirm Deletion (${countdownLeft}s)`;
+                        } else {
+                            clearInterval(deleteTimer);
+                            deleteTimer = null;
+                            deleteBtn.innerText = "❌ Delete Today's Entry";
+                        }
+                    }, 1000);
+                } else {
+                    clearInterval(deleteTimer);
+                    deleteTimer = null;
+                    deleteBtn.innerText = "Deleting...";
+
+                    fetch("/delete-entry", {
+                        method: "DELETE"
+                    })
+                    .then(async response => {
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.message);
+                        return data
+                    })
+                    .then(data => {
+                        alert("Today's entry has been deleted.");
+                        deleteBtn.innerText = "❌ Delete Today's Entry";
+                        location.reload()
+                    })
+                    .catch(error => {
+                        alert("Error: " + error.message)
+                        deleteBtn.innerText = "❌ Delete Today's Entry";
+                        location.reload()
+                    });
+                }
+            });
+
+        </script>
+    </body>
+</html>

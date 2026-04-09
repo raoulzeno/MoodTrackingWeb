@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Detail Log</title>
+    </head>
+    <body>
+        <h1>Detail Log</h1>
+        <button id="hamburger-btn">☰ Menu</button>
+        <nav id="mobile-menu" style="display: none;">
+            <ul>
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/detail">Detail Log</a></li>
+                <li><a href="/visualizations">Visualizations</a></li>
+            </ul>
+        </nav>
+        <div>
+            <h2>Weather</h2>
+            <p id="weather-display">Fetching Weather...</p>
+        </div>
+        <div>
+            <h2>Core Metrics</h2>
+            <div>
+                <label for="mood">Mood:</label>
+                <br>
+                <input type="range" id="mood" min="0" max="10" value="5">
+                <br>
+                <span id="mood-value">5</span>
+            </div>
+            <div>
+                <label for="energy">Energy:</label>
+                <br>
+                <input type="range" id="energy" min="0" max="10" value="5">
+                <br>
+                <span id="energy-value">5</span>
+            </div>
+            <div>
+                <label for="stress">Stress:</label>
+                <br>
+                <input type="range" id="stress" min="0" max="10" value="5">
+                <br>
+                <span id="stress-value">5</span>
+            </div>
+        </div>
+        <div>
+            <h2>Sleep</h2>
+            <div>
+                <div>
+                    <label for="sleep_quality">Sleep Quality</label>
+                    <br>
+                    <input type="radio" id="sleep-bad" name="sleep_quality" value="bad">
+                    <label for="sleep-bad">Bad</label>
+                    <input type="radio" id="sleep-okay" name="sleep_quality" value="okay" checked>
+                    <label for="sleep-okay">Okay</label>
+                    <input type="radio" id="sleep-good" name="sleep_quality" value="good">
+                    <label for="sleep-good">Good</label>
+                </div>
+                <br>
+                <div>
+                    <label for="sleep_time">Sleep Time</label>
+                    <br>
+                    <input type="range" id="sleep-time" min="0" max="15" value="7.5" step="0.5">
+                    <br>
+                    <span id="sleep-time-value">7.5</span>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Emotions</h2>
+            <div>
+                <div>
+                    <label for="primary-emotion">Primary Emotion</label>
+                    <br>
+                    <input type="radio" id="prim-emotion-fear" name="primary-emotion" value="fear">
+                    <label for="prim-emotion-fear">Fear</label>
+                    <input type="radio" id="prim-emotion-anger" name="primary-emotion" value="anber">
+                    <label for="prim-emotion-anger">Anger</label>
+                    <input type="radio" id="prim-emotion-sadness" name="primary-emotion" value="sadness">
+                    <label for="prim-emotion-sadness">Sadness</label>
+                    <input type="radio" id="prim-emotion-neutral" name="primary-emotion" value="neutral">
+                    <label for="prim-emotion-neutral">Neutral</label>
+                    <input type="radio" id="prim-emotion-joy" name="primary-emotion" value="joy">
+                    <label for="prim-emotion-joy">Joy</label>
+                    <input type="radio" id="prim-emotion-disgust" name="primary-emotion" value="disgust">
+                    <label for="prim-emotion-disgust">Disgust</label>
+                    <input type="radio" id="prim-emotion-surprise" name="primary-emotion" value="surprise">
+                    <label for="prim-emotion-surprise">Surprise</label>
+                </div>
+                <br>
+                <div>
+                    <label for="secondary-emotion">Secondary Emotion</label>
+                    <br>
+                    <input type="radio" id="second-emotion-fear" name="secondary-emotion" value="fear">
+                    <label for="second-emotion-fear">Fear</label>
+                    <input type="radio" id="second-emotion-anger" name="secondary-emotion" value="anger">
+                    <label for="second-emotion-anger">Anger</label>
+                    <input type="radio" id="second-emotion-sadness" name="secondary-emotion" value="sadness">
+                    <label for="second-emotion-sadness">Sadness</label>
+                    <input type="radio" id="second-emotion-neutral" name="secondary-emotion" value="neutral">
+                    <label for="second-emotion-neutral">Neutral</label>
+                    <input type="radio" id="second-emotion-joy" name="secondary-emotion" value="joy">
+                    <label for="second-emotion-joy">Joy</label>
+                    <input type="radio" id="second-emotion-disgust" name="secondary-emotion" value="disgust">
+                    <label for="second-emotion-disgust">Disgust</label>
+                    <input type="radio" id="second-emotion-surprise" name="secondary-emotion" value="surprise">
+                    <label for="second-emotion-surprise">Surprise</label>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Activities</h2>
+            <div>
+                <label for="activities">Activities</label>
+                <br>
+                <input type="checkbox" id="act-work" name="activities" value="work">
+                <label for="act-work">Work</label>
+                <input type="checkbox" id="act-workout" name="activities" value="workout">
+                <label for="act-workout">Workout</label>
+                <input type="checkbox" id="act-youtube" name="activities" value="youtube">
+                <label for="act-youtube">Youtube/Film Watching</label>
+                <input type="checkbox" id="act-doomscrolling" name="activities" value="doomscrolling">
+                <label for="act-doomscrolling">Doomscrolling</label>
+                <input type="checkbox" id="act-going-out" name="activities" value="going-out">
+                <label for="act-going-out">Going Out</label>
+                <input type="checkbox" id="act-meditating" name="activities" value="meditating">
+                <label for="act-meditating">Meditating</label>
+                <input type="checkbox" id="act-travelling" name="activities" value="travelling">
+                <label for="act-travelling">Travelling/Walking Around</label>
+                <input type="checkbox" id="act-meeting-friends" name="activities" value="meeting-friends">
+                <label for="act-meeting-friends">Meeting Friends</label>
+                <input type="checkbox" id="act-meeting-family" name="activities" value="meeting-family">
+                <label for="act-meeting-family">Meeting Family</label>
+                <input type="checkbox" id="act-transit" name="activities" value="transit">
+                <label for="act-transit">Transit</label>
+                <input type="checkbox" id="act-studying" name="activities" value="studying">
+                <label for="act-studying">Studying</label>
+                <input type="checkbox" id="act-napping" name="activities" value="napping">
+                <label for="act-napping">Napping</label>
+            </div>
+        </div>
+        <div>
+            <h2>Work</h2>
+            <div>
+                <div>
+                    <label for="work-hours">Work Hours</label>
+                    <br>
+                    <input type="range" id="work-hours" min="0" max="12" value="6" step="0.5">
+                    <br>
+                    <span id="work-hours-value">6</span>
+                </div>
+                <br>
+                <div>
+                    <label for="work-place">Work Place</label>
+                    <br>
+                    <input type="radio" id="work-home" name="work-place" value="home">
+                    <label for="work-home">At Home</label>
+                    <input type="radio" id="work-workplace" name="work-place" value="workplace" checked>
+                    <label for="work-workplace">At Workplace</label>
+                    <input type="radio" id="work-outside" name="work-place" value="outside">
+                    <label for="work-outside">Outside</label>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Contexts</h2>
+            <div>
+                <div>
+                    <label for="social-context">(Main) Social Context</label>
+                    <br>
+                    <input type="radio" id="social-partner" name="social-context" value="partner">
+                    <label for="social-partner">Partner</label>
+                    <input type="radio" id="social-friends" name="social-context" value="friends">
+                    <label for="social-friends">Friends</label>
+                    <input type="radio" id="social-family" name="social-context" value="family">
+                    <label for="social-family">Family</label>
+                    <input type="radio" id="social-alone" name="social-context" value="alone" checked>
+                    <label for="social-alone">Alone</label>
+                    <input type="radio" id="social-coworkers" name="social-context" value="coworkers">
+                    <label for="social-coworkers">Co-Workers</label>
+                    <input type="radio" id="social-strangers" name="social-context" value="strangers">
+                    <label for="social-strangers">Strangers</label>
+                </div>
+                <br>
+                <div>
+                    <label for="locations">(Main) Location</label>
+                    <br>
+                    <input type="radio" id="loc-home" name="locations" value="home">
+                    <label for="loc-home">Home</label>
+                    <input type="radio" id="loc-work" name="locations" value="work">
+                    <label for="loc-work">Work</label>
+                    <input type="radio" id="loc-outdoors" name="locations" value="outdoors">
+                    <label for="loc-outdoors">Outdoors</label>
+                    <input type="radio" id="loc-transit" name="locations" value="transit">
+                    <label for="loc-transit">Transit</label>
+                </div>
+                <br>
+                <div>
+                    <label for="substances">Substances Consumed</label>
+                    <br>
+                    <input type="checkbox" id="substance-alcohol" name="substances" value="alcohol">
+                    <label for="substance-alcohol">Alcohol</label>
+                    <input type="checkbox" id="substance-caffeine" name="substances" value="caffeine">
+                    <label for="substance-caffeine">Caffeine</label>
+                    <input type="checkbox" id="substance-sugar" name="substances" value="sugar">
+                    <label for="substance-sugar">Sugar</label>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Notes</h2>
+            <div>
+                <label for="notes">Notes/Diary (optional)</label>
+                <br>
+                <textarea id="notes-textarea" name="notes" rows="4" cols="100" placeholder="Have you experienced something interesting/relevant?"></textarea>
+            </div>
+        </div>
+        <br>
+        <button id="save-btn" onclick="window.location.href='index.html'">Save Entry</button>
+        <script>
+            document.getElementById("hamburger-btn").addEventListener("click", function() {
+                let menu = document.getElementById("mobile-menu");
+
+                if (menu.style.display == "none") {
+                    menu.style.display = "block";
+                } else {
+                    menu.style.display = "none";
+                }
+            });
+            function getQuickLogValues() {
+                fetch("/get-quicklog-values")
+                .then(response => {
+                    if (!response.ok) throw new Error("Something went wrong...");
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("mood").value = data.mood_value;
+                    document.getElementById("energy").value = data.energy_value;
+                    document.getElementById("stress").value = data.stress_value;
+                })
+                .catch(error => {
+                    console.error("Error fetching stuff...", error);
+                });
+            }
+            window.addEventListener("DOMContentLoaded", getQuickLogValues);
+        </script>
+    </body>
+</html>

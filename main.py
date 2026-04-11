@@ -13,6 +13,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+entry_activities = db.Table('entry_activities',
+    db.Column('entry_id', db.Integer, db.ForeignKey('mood_entries.id'), primary_key=True),
+    db.Column('activity_id', db.Integer, db.ForeignKey('activities.id'), primary_key=True)
+)
+
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
@@ -42,6 +47,35 @@ class MoodEntry(db.Model):
 
     notes = db.Column(db.Text, nullable=True)
     weather_condition = db.Column(db.String(100), nullable=True)
+
+    activities = db.relationship("Activity", secondary=entry_activities, backref="entries")
+
+    entry_type = db.Column(db.String(20), nullable=False)
+
+    substances = db.relationship("EntrySubstance", backref="entry", cascade="all, delete-orphan")
+
+class Activity(db.Model):
+    __tablename__ = "activities"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+
+class Substance(db.Model):
+    __tablename__ = "substances"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+
+class EntrySubstance(db.Model):
+    __tablename__ = "entry_substances"
+    entry_id = db.Column(db.Integer, db.ForeignKey("mood_entries.id"), primary_key=True)
+    substance_id = db.Column(db.Integer, db.ForeignKey("substances.id"), primary_key=True)
+
+    dosage = db.Column(db.Integer, nullable=False)
+
+    substance = db.relationship("Substance")
 
 @app.route("/")
 def home():
@@ -74,6 +108,7 @@ def save_quick_log():
 
     new_entry = MoodEntry(
         user_id=1,
+        entry_type="quick",
         mood=data["mood"],
         energy=data["energy"],
         stress=data["stress"]
@@ -89,13 +124,60 @@ def save_detail_log():
     data = request.get_json()
     start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-    existing_entry = MoodEntry.query.filer(
+    existing_entry = MoodEntry.query.filter(
         MoodEntry.user_id ==1,
         MoodEntry.timestamp >= start_of_today
     ).first()
 
     if existing_entry:
-        pass
+        if existing_entry.entry_type == "detailed":
+            return jsonify({"status" : "error", "message" : "Already saved a Detail Log! Come back tomorrow."}), 400
+        
+        elif existing_entry.entry_type == "quick":
+            db.session.delete(existing_entry)
+            db.session.flush()
+
+    new_entry = MoodEntry(
+        user_id=1,
+        entry_type="detailed",
+        mood=data["mood"],
+        energy=data["energy"],
+        stress=data["stress"],
+        sleep_quality=data["sleep_quality"],
+        sleep_time=data["sleep_time"],
+        primary_emotion=data["primary_emotion"],
+        secondary_emotion=data["secondary_emotion"],
+        work_hours=data["work_hours"],
+        work_place=data["work_place"],
+        social_context=data["social_context"],
+        location=data["location"],
+        notes=data["notes"]
+    )
+    with db.session.no_autoflush:
+        for act_id in data["activities"]:
+            activity_obj = db.session.get(Activity, act_id)
+            if activity_obj:
+                new_entry.activities.append(activity_obj)
+
+    with db.session.no_autoflush:
+        for item in data["substances"]:
+            substance_id = item["id"]
+            dosage = item["dosage"]
+
+            substance_obj = db.session.get(Substance, substance_id)
+
+            if substance_obj:
+                new_sub = EntrySubstance(
+                    substance=substance_obj,
+                    dosage=dosage
+                )
+
+                new_entry.substances.append(new_sub)
+
+    db.session.add(new_entry)
+    db.session.commit()
+
+    return jsonify({"status": "success", "message" : "Entry saved."}), 200
 
 @app.route("/delete-entry", methods=["DELETE"])
 def delete_entry():
@@ -128,9 +210,9 @@ def get_quicklog_values():
     if not entry:
         return jsonify({
             "status": "success",
-            "mood_value" : "0",
-            "energy_value" : "0",
-            "stress_value" : "0"
+            "mood_value" : "5",
+            "energy_value" : "5",
+            "stress_value" : "5"
         }), 200
     return jsonify({
         "status" : "success",

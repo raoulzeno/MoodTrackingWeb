@@ -78,7 +78,7 @@
                     <label for="prim-emotion-anger">Anger</label>
                     <input type="radio" id="prim-emotion-sadness" name="primary-emotion" value="sadness">
                     <label for="prim-emotion-sadness">Sadness</label>
-                    <input type="radio" id="prim-emotion-neutral" name="primary-emotion" value="neutral">
+                    <input type="radio" id="prim-emotion-neutral" name="primary-emotion" value="neutral" checked>
                     <label for="prim-emotion-neutral">Neutral</label>
                     <input type="radio" id="prim-emotion-joy" name="primary-emotion" value="joy">
                     <label for="prim-emotion-joy">Joy</label>
@@ -97,7 +97,7 @@
                     <label for="second-emotion-anger">Anger</label>
                     <input type="radio" id="second-emotion-sadness" name="secondary-emotion" value="sadness">
                     <label for="second-emotion-sadness">Sadness</label>
-                    <input type="radio" id="second-emotion-neutral" name="secondary-emotion" value="neutral">
+                    <input type="radio" id="second-emotion-neutral" name="secondary-emotion" value="neutral" checked>
                     <label for="second-emotion-neutral">Neutral</label>
                     <input type="radio" id="second-emotion-joy" name="secondary-emotion" value="joy">
                     <label for="second-emotion-joy">Joy</label>
@@ -113,29 +113,29 @@
             <div>
                 <label for="activities">Activities</label>
                 <br>
-                <input type="checkbox" id="act-work" name="activities" value="work">
+                <input type="checkbox" id="act-work" name="activities" value="work" data-id="1">
                 <label for="act-work">Work</label>
-                <input type="checkbox" id="act-workout" name="activities" value="workout">
+                <input type="checkbox" id="act-workout" name="activities" value="workout" data-id="2">
                 <label for="act-workout">Workout</label>
-                <input type="checkbox" id="act-youtube" name="activities" value="youtube">
+                <input type="checkbox" id="act-youtube" name="activities" value="youtube" data-id="3">
                 <label for="act-youtube">Youtube/Film Watching</label>
-                <input type="checkbox" id="act-doomscrolling" name="activities" value="doomscrolling">
+                <input type="checkbox" id="act-doomscrolling" name="activities" value="doomscrolling" data-id="4">
                 <label for="act-doomscrolling">Doomscrolling</label>
-                <input type="checkbox" id="act-going-out" name="activities" value="going-out">
+                <input type="checkbox" id="act-going-out" name="activities" value="going-out" data-id="5">
                 <label for="act-going-out">Going Out</label>
-                <input type="checkbox" id="act-meditating" name="activities" value="meditating">
+                <input type="checkbox" id="act-meditating" name="activities" value="meditating" data-id="6">
                 <label for="act-meditating">Meditating</label>
-                <input type="checkbox" id="act-travelling" name="activities" value="travelling">
+                <input type="checkbox" id="act-travelling" name="activities" value="travelling" data-id="7">
                 <label for="act-travelling">Travelling/Walking Around</label>
-                <input type="checkbox" id="act-meeting-friends" name="activities" value="meeting-friends">
+                <input type="checkbox" id="act-meeting-friends" name="activities" value="meeting-friends" data-id="8">
                 <label for="act-meeting-friends">Meeting Friends</label>
-                <input type="checkbox" id="act-meeting-family" name="activities" value="meeting-family">
+                <input type="checkbox" id="act-meeting-family" name="activities" value="meeting-family" data-id="9">
                 <label for="act-meeting-family">Meeting Family</label>
-                <input type="checkbox" id="act-transit" name="activities" value="transit">
+                <input type="checkbox" id="act-transit" name="activities" value="transit" data-id="10">
                 <label for="act-transit">Transit</label>
-                <input type="checkbox" id="act-studying" name="activities" value="studying">
+                <input type="checkbox" id="act-studying" name="activities" value="studying" data-id="11">
                 <label for="act-studying">Studying</label>
-                <input type="checkbox" id="act-napping" name="activities" value="napping">
+                <input type="checkbox" id="act-napping" name="activities" value="napping" data-id="12">
                 <label for="act-napping">Napping</label>
             </div>
         </div>
@@ -187,7 +187,7 @@
                     <br>
                     <input type="radio" id="loc-home" name="locations" value="home">
                     <label for="loc-home">Home</label>
-                    <input type="radio" id="loc-work" name="locations" value="work">
+                    <input type="radio" id="loc-work" name="locations" value="work" checked>
                     <label for="loc-work">Work</label>
                     <input type="radio" id="loc-outdoors" name="locations" value="outdoors">
                     <label for="loc-outdoors">Outdoors</label>
@@ -198,12 +198,26 @@
                 <div>
                     <label for="substances">Substances Consumed</label>
                     <br>
-                    <input type="checkbox" id="substance-alcohol" name="substances" value="alcohol">
+                    <input type="checkbox" id="substance-alcohol" name="substances" value="alcohol" data-id="1" onclick="displaySlider(this.value)">
                     <label for="substance-alcohol">Alcohol</label>
-                    <input type="checkbox" id="substance-caffeine" name="substances" value="caffeine">
+                    <br>
+                    <input type="range" id="alcohol" min="1" max="10" value="1" style="display: none;">
+                    <span id="alcohol-value" style="display: none">1 beverage</span>
+                    <input type="checkbox" id="substance-caffeine" name="substances" value="caffeine" data-id="2" onclick="displaySlider(this.value)">
                     <label for="substance-caffeine">Caffeine</label>
-                    <input type="checkbox" id="substance-sugar" name="substances" value="sugar">
+                    <br>
+                    <input type="range" id="caffeine" min="1" max="10" value="1" style="display: none;">
+                    <span id="caffeine-value" style="display: none">1 cup of coffee / tea</span>
+                    <input type="checkbox" id="substance-sugar" name="substances" value="sugar" data-id="3" onclick="displaySlider(this.value)">
                     <label for="substance-sugar">Sugar</label>
+                    <br>
+                    <input type="range" id="sugar" min="1" max="10" value="1" style="display: none;">
+                    <span id="sugar-value" style="display: none">1 sugary snack</span>
+                    <input type="checkbox" id="substance-meds" name="substances" value="meds" data-id="4" onclick="displaySlider(this.value)">
+                    <label for="substance-meds">Meds</label>
+                    <br>
+                    <input type="range" id="meds" min="1" max="10" value="1" style="display: none;">
+                    <span id="meds-value" style="display: none">1 pill</span>
                 </div>
             </div>
         </div>
@@ -216,7 +230,7 @@
             </div>
         </div>
         <br>
-        <button id="save-btn" onclick="window.location.href='index.html'">Save Entry</button>
+        <button id="save-btn">Save Entry</button>
         <script>
             document.getElementById("hamburger-btn").addEventListener("click", function() {
                 let menu = document.getElementById("mobile-menu");
@@ -227,6 +241,112 @@
                     menu.style.display = "none";
                 }
             });
+
+            const sliders = ["mood", "energy", "stress", "sleep-time", "work-hours", "alcohol", "sugar", "caffeine", "meds"];
+
+            sliders.forEach(metric => {
+                let slider = document.getElementById(`${metric}`);
+                let display = document.getElementById(`${metric}-value`)
+
+                slider.addEventListener("input", function () {
+                    if (metric === "alcohol") {
+                        display.innerText = this.value + " " + "beverages";
+                    } else if (metric === "sugar") {
+                        display.innerText = this.value + " " + "sugary snacks";
+                    } else if (metric === "caffeine") {
+                        display.innerText = this.value + " " + "cups of coffee / tea";
+                    } else if (metric === "meds") {
+                        display.innerText = this.value + " " + "pills";
+                    } else {
+                        display.innerText = this.value
+                    }    
+                })
+            })
+
+            function displaySlider(keyword) {
+                let slider = document.getElementById(`${keyword}`)
+                let displayer = document.getElementById(`${keyword}-value`)
+                if (slider.style.display === "none") {
+                    slider.style.display = "block";
+                    displayer.style.display = "block";
+                } else {
+                    slider.style.display = "none";
+                    displayer.style.display = "none";
+                }
+            }
+            document.getElementById("save-btn").addEventListener("click", function (event) {
+
+                event.preventDefault();
+
+                let sleepQuality = document.querySelector("input[name='sleep_quality']:checked").value;
+                let primaryEmotion = document.querySelector("input[name='primary-emotion']:checked").value;
+                let secondaryEmotion = document.querySelector("input[name='secondary-emotion']:checked").value;
+                let workPlace = document.querySelector("input[name='work-place']:checked").value;
+                let socialContext = document.querySelector("input[name='social-context']:checked").value;
+                let location = document.querySelector("input[name='locations']:checked").value;
+                let selectedActivities = [];
+                let checkedBoxes = document.querySelectorAll("input[name='activities']:checked");
+                let loggedSubstances = [];
+                let checkedSubstances = document.querySelectorAll("input[name='substances']:checked");
+
+                checkedSubstances.forEach(function(box) {
+                    let matchingSlider = document.getElementById(box.value);
+
+                    loggedSubstances.push({
+                        id: parseInt(box.dataset.id),
+                        dosage: parseInt(matchingSlider.value)
+                    });
+                });
+
+                checkedBoxes.forEach(function(box) {
+                    selectedActivities.push(parseInt(box.dataset.id));
+                    console.log(selectedActivities)
+                })
+
+                const payload = {
+                    mood: document.getElementById("mood").value,
+                    energy: document.getElementById("energy").value,
+                    stress: document.getElementById("stress").value,
+                    sleep_quality: sleepQuality,
+                    sleep_time: document.getElementById("sleep-time").value,
+                    primary_emotion: primaryEmotion,
+                    secondary_emotion: secondaryEmotion,
+                    work_hours: document.getElementById("work-hours").value,
+                    work_place: workPlace,
+                    social_context: socialContext,
+                    location: location,
+                    notes: document.getElementById("notes-textarea").value,
+                    activities: selectedActivities,
+                    substances: loggedSubstances
+                };
+
+                fetch("/save-detail-log", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                })
+                .then(async response => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        alert(data.message);
+                        window.location.href = "/";
+                        throw new Error(data.message);
+                        
+                    }
+
+                    return data;
+                })
+                .then(data => {
+                    console.log("Success:", data);
+                    alert("Entry saved successfully");
+                    window.location.href = "/";
+                })
+                .catch((error) => {
+                    console.error("Error:", error)
+                })
+            })
+
             function getQuickLogValues() {
                 fetch("/get-quicklog-values")
                 .then(response => {
@@ -237,11 +357,16 @@
                     document.getElementById("mood").value = data.mood_value;
                     document.getElementById("energy").value = data.energy_value;
                     document.getElementById("stress").value = data.stress_value;
+                    document.getElementById("mood-value").innerText = data.mood_value;
+                    document.getElementById("energy-value").innerText = data.energy_value;
+                    document.getElementById("stress-value").innerText = data.stress_value;
+
                 })
                 .catch(error => {
                     console.error("Error fetching stuff...", error);
                 });
             }
+
             window.addEventListener("DOMContentLoaded", getQuickLogValues);
         </script>
     </body>

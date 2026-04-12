@@ -3,106 +3,142 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                extend: {
+                    fontFamily: {
+                    // This tells Tailwind to replace its default "sans" font with our new Inter font
+                    sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+                }
+            }
+            </script>
         <title>Mood Tracker</title>
     </head>
-    <body>
-        <h1>Mood Tracker</h1>
-        <button id="hamburger-btn">☰ Menu</button>
-        <nav id="mobile-menu" style="display: none;">
-            <ul>
-                <li><a href="#" onclick="showView('dashboard-view')">Dashboard</a></li>
-                <li><a href="#" onclick="showView('quick-log-view')">Quick Log</a></li>
-                <li><a href="/detail">Detail Log</a></li>
-                <li><a href="/visualizations">Visualizations</a></li>
-            </ul>
+    <body class="bg-slate-900 text-slate-100 font-sans p-4">
+        <nav class="flex items-center justify-between p-5 w-full bg-transparent relative top-0">
+            <button id="hamburger-btn" class="flex flex-col gap-1.5 focus:outline-none top-0">
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+            </button>
+
+            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Raoul's Tracker</span>
+
+            <div class="w-6"></div>
         </nav>
+        <div id="mobile-menu" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center gap-8">
+            <button onclick="toggleMenu()" class="absolute top-6 left-6 text-white text-3xl">&times;</button>
+
+            <a href="/" class="text-2xl font-bold text-white hover:text-indigo-400">Dashboard</a>
+            <a href="/detail" class="text-2xl font-bold text-white hover:text-indigo-400">Detail Log</a>
+            <a href="/visualizations" class="text-2xl font-bold text-white hover:text-indigo-400">Visualizations</a>
+        </div>
         <hr>
-        <div id="dashboard-view">
-            <h2>Dashboard</h2>
-            <div>
-                <h3>Weather</h3>
-                <p id="weather-display">Fetching Weather...</p>
+        <div id="dashboard-view" class="flex flex-col justify-center items-center gap-4">
+            <div class="self-start">
+                <h2 class="text-2xl font-bold pt-5">Dashboard</h2>
+                <h4 class="text-slate-400 text-md" name="Raoul">Welcome back, Raoul!</h4>
             </div>
-            <hr>
-            <div>
-                <h3>Weekly Mood Score</h3>
-                <p id="mood-score">Calculating Weekly Mood Score</p>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-4 w-full">
+                <p id="weather-display" class="justify-self-left">Fetching Weather...</p>
             </div>
-            <br>
-            <div>
-                <h3>Weekly Energy Score</h3>
-                <p id="energy-score">Calculating Weekly Energy Score</p>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="justify-self-center">Mood</h3>
+                <p id="mood-score" class="justify-self-center text-6xl pt-5 pb-4"></p>
             </div>
-            <br>
-            <div>
-                <h3>Weekly Stress Score</h3>
-                <p id="stress-score">Calculating Weekly Stress Score</p>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="justify-self-center">Energy</h3>
+                <p id="energy-score" class="justify-self-center text-6xl pt-5 pb-4"></p>
             </div>
-            <button onclick="showView('quick-log-view')">⚡ Quick Log</button>
-            <button onclick="window.location.href='/detail'">📝 Detail Log</button>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="justify-self-center">Stress</h3>
+                <p id="stress-score" class="justify-self-center text-6xl pt-5 pb-4"></p>
+            </div>
+            <button onclick="showView('quick-log-mood')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 transition-all duration-200 flex items-center justify-center gap-2">⚡ Quick Log</button>
+            <button onclick="window.location.href='/detail'" class="w-full py-4 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-semibold rounded-2xl border border-slate-700 transition-all duration-200 flex items-center justify-center gap-2">📝 Detail Log</button>
             <br>
             <button id="delete-btn" onclick="deleteEntry(this);">❌ Reset Today's Entry</button>
         </div>
 
-        <div id="quick-log-view" style="display: none;">
+        <div id="quick-log-mood" style="display: none;">
             <h2>Quick Log</h2>
             <div>
-                <label for="quick-mood">Mood:</label><br>
-                <input type="range" id="quick-mood" min="0" max="10" value="5"><br>
-                <span id="quick-mood-value">5</span>
+                <label for="quick_mood">What's your mood today?</label><br>
+                <button onclick="setMood(1)">😭 Terrible</button>
+                <button onclick="setMood(3)">☹️ Bad</button>
+                <button onclick="setMood(5)">😐 Okay</button>
+                <button onclick="setMood(7)">🙂 Good</button>
+                <button onclick="setMood(9)">🤩 Excellent</button>
             </div>
-            <br>
+        </div>
+        <div id="quick-log-energy" style="display: none;">
+            <h2>Quick Log</h2>
             <div>
-                <label for="quick-energy">Energy:</label><br>
-                <input type="range" id="quick-energy" min="0" max="10" value="5"><br>
-                <span id="quick-energy-value">5</span>
+                <label for="quick_energy">What's your energy today?</label><br>
+                <button onclick="setEnergy(1)">🔋 Exhausted</button>
+                <button onclick="setEnergy(3)">🪫 Low</button>
+                <button onclick="setEnergy(5)">🔌 Normal</button>
+                <button onclick="setEnergy(7)">⚡ High</button>
+                <button onclick="setEnergy(9)">🚀 Wired</button>
+                <br>
+                <button onclick="showView('quick-log-mood')">Go Back</button>
             </div>
-            <br>
+        </div>
+        <div id="quick-log-stress" style="display: none;">
+            <h2>Quick Log</h2>
             <div>
-                <label for="quick-stress">Stress:</label><br>
-                <input type="range" id="quick-stress" min="0" max="10"  value="5"><br>
-                <span id="quick-stress-value">5</span>
+                <label for="quick_stress">What's your stress level today?</label><br>
+                <button onclick="setStress(1)">🧘 Relaxed</button>
+                <button onclick="setStress(3)">🍃 Calm</button>
+                <button onclick="setStress(5)">😬 Tense</button>
+                <button onclick="setStress(7)">😰 Stressed</button>
+                <button onclick="setStress(9)">🤯 Overwhelmed</button>
+                <br>
+                <button onclick="showView('quick-log-energy')">Go Back</button>
             </div>
-            <br>
-            <button id="save-quick-btn">Save Entry</button>
         </div>
 
         <script>
-            document.getElementById("hamburger-btn").addEventListener("click", function() {
-                let menu = document.getElementById("mobile-menu");
-
-                if (menu.style.display == "none") {
-                    menu.style.display = "block";
-                } else {
-                    menu.style.display = "none";
-                }
-            });
+            document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
 
             function showView(viewId) {
                 document.getElementById('dashboard-view').style.display = 'none';
-                document.getElementById('quick-log-view').style.display = 'none';
+                document.getElementById('quick-log-mood').style.display = 'none';
+                document.getElementById("quick-log-energy").style.display = "none";
+                document.getElementById("quick-log-stress").style.display = "none";
 
                 document.getElementById(viewId).style.display = 'block';
 
                 document.getElementById('mobile-menu').style.display = 'none';
             }
 
-            const sliders = ["mood", "energy", "stress"];
+            let quickMood = 5;
+            let quickEnergy = 5;
+            let quickStress = 5;
 
-            sliders.forEach(metric => {
-                let slider = document.getElementById(`quick-${metric}`);
-                let display = document.getElementById(`quick-${metric}-value`);
+            function setMood(value) {
+                quickMood = value;
+                showView("quick-log-energy");
+            }
 
-                slider.addEventListener('input', function() {
-                    display.innerText = this.value;
-                });
-            });
+            function setEnergy(value) {
+                quickEnergy = value;
+                showView("quick-log-stress");
+            }
 
-            document.getElementById("save-quick-btn").addEventListener("click", function() {
+            function setStress(value) {
+                quickStress = value;
                 const payload = {
-                    mood: document.getElementById("quick-mood").value,
-                    energy: document.getElementById("quick-energy").value,
-                    stress: document.getElementById("quick-stress").value,
+                    mood: quickMood,
+                    energy: quickEnergy,
+                    stress: quickStress
                 };
 
                 fetch("/save-quick-log", {
@@ -125,21 +161,14 @@
                 .then(data => {
                     console.log("Success:", data);
                     alert("Entry saved successfully");
-
-                    document.getElementById("quick-mood").value = 5;
-                    document.getElementById("quick-mood-value").innerText = 5;
-                    document.getElementById("quick-energy").value = 5;
-                    document.getElementById("quick-energy-value").innerText = 5;
-                    document.getElementById("quick-stress").value = 5;
-                    document.getElementById("quick-stress-value").innerText = 5;
-
                     showView("dashboard-view");
+                    location.reload();
                 })
                 .catch((error) => {
                     console.error("Error:", error);
                     showView("dashboard-view");
                 });
-            });
+            }
 
             let deleteTimer = null;
             let countdownLeft = 5;
@@ -186,6 +215,68 @@
                     });
                 }
             });
+
+            function getAverages () {
+                fetch("/get-averages", {
+                    method: "GET"
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message);
+                    return data
+                })
+                .then(data => {
+                    document.getElementById("mood-score").innerText = data["mood_score"];
+                    document.getElementById("mood-score").className = `font-bold justify-self-center text-6xl pt-5 pb-4 ${getScoreColor("mood", data["mood_score"])}`
+                    document.getElementById("energy-score").innerText = data["energy_score"];
+                    document.getElementById("energy-score").className = `font-bold justify-self-center text-6xl pt-5 pb-4 ${getScoreColor("energy", data["energy_score"])}`
+                    document.getElementById("stress-score").innerText = data["stress_score"];
+                    document.getElementById("stress-score").className = `font-bold justify-self-center text-6xl pt-5 pb-4 ${getScoreColor("stress", data["stress_score"])}`
+                })
+                .catch(error => {
+                    alert("Error: " + error.message);
+                });
+            };
+
+            function getWeather() {
+                fetch("/get-weather", {
+                    method: "GET"
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message);
+                    return data
+                })
+                .then(data => {
+                    document.getElementById("weather-display").innerText = data["weather"]
+                })
+                .catch(error => {
+                    document.getElementById("weather-display").innerText = "Could not fetch weather data."
+                    alert("Error: " + error.message)
+                })
+            }
+
+            function getScoreColor(type, score) {
+                if (type === "stress") {
+                    if (score >= 7) return "text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.4)]";
+                    if (score >= 4) return "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.3)]";
+                    return "text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]"
+                } else {
+                    if (score >= 7) return "text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]";
+                    if (score >= 4) return "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.3)]";
+                    return "text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.4)]"
+                }
+            }
+
+            function toggleMenu() {
+                const menu = document.getElementById("mobile-menu");
+                menu.classList.toggle("hidden")
+            }
+
+            window.addEventListener("DOMContentLoaded", () => {
+                getAverages();
+                getWeather();
+            })
 
         </script>
     </body>

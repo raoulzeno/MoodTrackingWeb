@@ -1,8 +1,10 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from sqlalchemy.sql import func
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from weather import get_weather
 
 load_dotenv()
 
@@ -88,6 +90,18 @@ def detail_log():
 @app.route("/visualizations")
 def visualization():
     return render_template("visualizations.html")
+@app.route("/get-weather", methods=["GET"])
+def fetch_weather():
+    weather_string = get_weather()
+    if not weather_string:
+        return jsonify({
+            "status": "error",
+            "message": "Unable to fetch weather data."
+        }), 400
+    return jsonify({
+        "status": "success",
+        "weather" : weather_string
+    }), 200
 
 @app.route("/save-quick-log", methods=["POST"])
 def save_quick_log():
@@ -151,7 +165,8 @@ def save_detail_log():
         work_place=data["work_place"],
         social_context=data["social_context"],
         location=data["location"],
-        notes=data["notes"]
+        notes=data["notes"],
+        weather_condition=data["weather_condition"]
     )
     with db.session.no_autoflush:
         for act_id in data["activities"]:
@@ -221,6 +236,34 @@ def get_quicklog_values():
         "stress_value" : entry.stress
     }), 200
 
+@app.route("/get-averages", methods=["GET"])
+def get_weekly_averages():
+    start_of_time = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
+    end_of_time = datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    stats = db.session.query(
+        func.avg(MoodEntry.mood).label("avg_mood"),
+        func.avg(MoodEntry.energy).label("avg_energy"),
+        func.avg(MoodEntry.stress).label("avg_stress")
+    ).filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp.between(start_of_time, end_of_time)
+    ).first()
+
+    if stats.avg_mood is None:
+        return jsonify({
+            "status": "success",
+            "mood_score": "-",
+            "energy_score": "-",
+            "stress_score": "-"
+        }), 200
+
+    return jsonify({
+        "status" : "success",
+        "mood_score" : round(stats.avg_mood, 1),
+        "energy_score": round(stats.avg_energy, 1),
+        "stress_score" : round(stats.avg_stress, 1)
+    }), 200
 
 
 if __name__ == "__main__":

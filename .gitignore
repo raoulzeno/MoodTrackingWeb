@@ -1,3 +1,7 @@
 .venv
 .env
 __pycache__/
+seed_users.py
+seed.py
+weather.py
+.cache.sqlite

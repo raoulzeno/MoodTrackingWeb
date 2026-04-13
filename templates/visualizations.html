@@ -1,4 +1,479 @@
 <!DOCTYPE html>
-<html>
-    To be implemented...
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                extend: {
+                    fontFamily: {
+                    // This tells Tailwind to replace its default "sans" font with our new Inter font
+                    sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+                }
+            }
+            </script>
+        <title>Visualizations</title>
+    </head>
+    <body class="bg-slate-900 text-slate-100 font-sans p-4">
+        <nav class="flex items-center justify-between p-5 w-full bg-transparent relative top-0">
+            <button id="hamburger-btn" class="flex flex-col gap-1.5 focus:outline-none top-0">
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+            </button>
+
+            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Raoul's Tracker</span>
+
+            <div class="w-6"></div>
+        </nav>
+        <div id="mobile-menu" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center gap-8">
+            <button onclick="toggleMenu()" class="absolute top-6 left-6 text-white text-3xl">&times;</button>
+
+            <a href="/" class="text-2xl font-bold text-white hover:text-indigo-400">Dashboard</a>
+            <a href="/detail" class="text-2xl font-bold text-white hover:text-indigo-400">Detail Log</a>
+            <a href="/visualizations" class="text-2xl font-bold text-white hover:text-indigo-400">Visualizations</a>
+        </div>
+        <hr>
+        <div id="visualizations" class="flex flex-col justify-center items-center gap-4">
+            <div class="self-start">
+                <h2 class="text-2xl font-bold pt-5">Visualizations</h2>
+            </div>
+            <div id="calendar" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="text-xl font-bold mb-6">Calendar</h3>
+            </div>
+            <div id="trend" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="text-xl font-bold mb-6">Weekly Trends</h3>
+                <div class="relative h-[350px] w-full">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+            <div id="sleep-quant-qual" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="text-xl font-bold mb-6">Sleep Quantity and Quality</h3>
+                <div class="relative h-[350px] w-full">
+                    <canvas id="sleepChart"></canvas>
+                </div>
+            </div>
+            <div id="work-hours-metrics" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="text-xl font-bold mb-6">Work Hours Impact</h3>
+                <div class="relative h-[350px] w-full">
+                    <canvas id="workChart"></canvas>
+                </div>
+            </div>
+            <div id="environments" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="text-xl font-bold mb-6">Environments</h3>
+                <div class="relative h-[400px] w-full">
+                    <canvas id="environmentChart"></canvas>
+                </div>
+            </div>
+            <div id="activty-substance-table" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="text-xl font-bold mb-6">Activity and Substance Table</h3>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
+
+            async function loadEnvironmentChart() {
+                try {
+                    const response = await fetch("/get-environments-data");
+                    const data = await response.json();
+
+                    if (data.labels.length === 0) {
+                        console.log("No environment data found.");
+                        return;
+                    }
+
+                    const ctx = document.getElementById("environmentChart").getContext("2d");
+
+                    new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: data.labels, // The points of the web (Home, Work, etc.)
+                            datasets: [
+                                {
+                                    label: 'Avg Mood',
+                                    data: data.moods,
+                                    backgroundColor: 'rgba(99, 102, 241, 0.2)', // Transparent Indigo
+                                    borderColor: '#6366f1',
+                                    pointBackgroundColor: '#6366f1',
+                                    borderWidth: 2
+                                },
+                                {
+                                    label: 'Avg Energy',
+                                    data: data.energies,
+                                    backgroundColor: 'rgba(16, 185, 129, 0.2)', // Transparent Emerald
+                                    borderColor: '#10b981',
+                                    pointBackgroundColor: '#10b981',
+                                    borderWidth: 2
+                                },
+                                {
+                                    label: 'Avg Stress',
+                                    data: data.stress,
+                                    backgroundColor: 'rgba(244, 63, 94, 0.2)', // Transparent Rose
+                                    borderColor: '#f43f5e',
+                                    pointBackgroundColor: '#f43f5e',
+                                    borderWidth: 2
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    min: 0,
+                                    max: 10,
+                                    angleLines: { color: 'rgba(148, 163, 184, 0.2)' }, // The "spokes" of the web
+                                    grid: { color: 'rgba(148, 163, 184, 0.2)' }, // The rings of the web
+                                    pointLabels: {
+                                        color: '#f8fafc',
+                                        font: { family: 'Montserrat', size: 13, weight: 'bold' }
+                                    },
+                                    ticks: {
+                                        display: false, // Hides the distracting numbers on the rings
+                                        stepSize: 2
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: "#f8fafc",
+                                        font: { family: "Montserrat", size: 14 },
+                                        usePointStyle: true,
+                                        padding: 20
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: "rgba(15, 23, 42, 0.9)",
+                                    titleFont: { size: 14, family: "Montserrat" },
+                                    bodyFont: { size: 13, family: "Montserrat" },
+                                    padding: 12,
+                                    cornerRadius: 8
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error loading environment chart:", error);
+                }
+            }
+
+            async function loadWorkChart() {
+                try {
+                    const response = await fetch("/get-work-data");
+                    const payload = await response.json();
+                    const scatterData = payload.data;
+
+                    if (scatterData.length === 0) {
+                        console.log("No Work data found for Scatter plot")
+                        return;
+                    }
+
+                    const ctx = document.getElementById("workChart").getContext("2d");
+
+                    new Chart(ctx, {
+                        type: "scatter",
+                        data: {
+                            datasets: [{
+                                label: "Work vs. Mood",
+                                data: scatterData,
+                                backgroundColor: "rgba(99, 102, 241, 0.8)",
+                                borderColor: "#4f46e5",
+                                borderWidth: 1,
+                                pointRadius: 7,
+                                pointHoverRadius: 10,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    type: 'linear',
+                                    position: 'bottom',
+                                    title: {
+                                        display: true,
+                                        text: 'Hours Worked',
+                                        color: '#94a3b8',
+                                        font: { family: 'Montserrat', size: 14, weight: 'bold' }
+                                    },
+                                    grid: { color: '#334155' },
+                                    ticks: { color: '#94a3b8' }
+                                },
+                                y: {
+                                    min: 0,
+                                    max: 10,
+                                    title: {
+                                        display: true,
+                                        text: 'Mood Level',
+                                        color: '#94a3b8',
+                                        font: { family: 'Montserrat', size: 14, weight: 'bold' }
+                                    },
+                                    grid: { color: '#334155' },
+                                    ticks: { color: '#94a3b8' }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: "rgba(15, 23, 42, 0.9)",
+                                titleFont: { size: 14, family: "Montserrat" },
+                                bodyFont: { size: 13, family: "Montserrat" },
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    // This replaces the default "X: 8, Y: 5" text
+                                    label: function(context) {
+                                        const date = context.raw.date;
+                                        const hours = context.raw.x;
+                                        const mood = context.raw.y;
+                                        return `${date}: ${hours} hrs worked ➔ Mood: ${mood}`;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error loading work scatter chart:", error)
+                }
+            }
+
+            async function loadSleepChart() {
+                try {
+                    const response = await fetch("/get-sleep-data")
+                    const data = await response.json();
+
+                    if (data.labels.length === 0) {
+                        console.log("No data found for the last 7 days.");
+                        return;
+                    }
+
+                    const ctx = document.getElementById("sleepChart").getContext("2d");
+                    const qualityColors = data.sleep_quality.map(quality => {
+                        if (quality === 'good') return 'rgba(16, 185, 129, 0.8)';
+                        if (quality === 'bad') return 'rgba(244, 63, 94, 0.8)';
+                        return 'rgba(148, 163, 184, 0.8)';
+                    });
+
+                    new Chart(ctx, {
+                        data: {
+                            datasets: [{
+                                type: "line",
+                                label: "Mood",
+                                data: data.moods,
+                                borderColor: "#6366f1",
+                                borderWidth: 3,
+                                tension: 0.4
+                            }, {
+                                type: "line",
+                                label: "Energy",
+                                data: data.energies,
+                                borderColor: "#10b981",
+                                borderWidth: 3,
+                                tension: 0.4
+                            }, {
+                                type: "line",
+                                label: "Stress",
+                                data: data.stress,
+                                borderColor: "#f43f5e",
+                                borderWidth: 3,
+                                tension: 0.4
+                            }, {
+                                type: "bar",
+                                label: "Amount of Sleep and Quality",
+                                data: data.sleep_time,
+                                backgroundColor: qualityColors
+                            }],
+                            labels: data.labels
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: "index",
+                                intersect: false,
+                            },
+                            scales: {
+                                y: {
+                                    min: 0,
+                                    max: 15,
+                                    grid: { color: "#334155" },
+                                    ticks: { color: "#94a3b8" }
+                                },
+                                x: {
+                                    grid: { display: false},
+                                    ticks: {color: "#94a3b8", font: { weight: "bold" } }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    onClick: function(e, legendItem, legend) {
+                                        const chart = legend.chart;
+
+                                        if (legendItem.datasetIndex === 3) {
+                                            return;
+                                        }
+
+                                        if (chart.isDatasetVisible(legendItem.datasetIndex)) {
+                                            chart.hide(legendItem.datasetIndex)
+                                        } else {
+                                            chart.show(legendItem.datasetIndex)
+                                        }
+                                    },
+                                    labels: {
+                                        color: "#f8fafc",
+                                        font: { family: "Montserrat", size: 14},
+                                        usePointStyle: true,
+                                        padding: 20
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: "rgba(15, 23, 42, 0.9)",
+                                    titleFont: { size: 14, family: "Montserrat" },
+                                    bodyFont: { size: 13, family: "Montserrat" },
+                                    padding: 12,
+                                    cornerRadius: 8
+                                }
+                            }
+                        }
+                    });
+                } catch(error) {
+                    console.log("Error fetching data: ", error);
+                }
+            }
+
+            async function loadTrendChart() {
+                try {
+                    const response = await fetch("/get-trend-data");
+                    const data = await response.json();
+
+                    if (data.labels.length === 0) {
+                        console.log("No data found for the last 7 days.");
+                        return;
+                    }
+
+                    const ctx = document.getElementById("trendsChart").getContext("2d");
+
+                    new Chart(ctx, {
+                        type: "line",
+                        data: {
+                            labels: data.labels,
+                            datasets: [
+                                {
+                                    label: "Mood",
+                                    data: data.moods,
+                                    borderColor: "#6366f1",
+                                    borderWidth: 3,
+                                    tension: 0.4
+                                },
+                                {
+                                    label: "Energy",
+                                    data: data.energies,
+                                    borderColor: "#10b981",
+                                    borderWidth: 3,
+                                    tension: 0.4,
+                                    hidden: false
+                                },
+                                {
+                                    label: "Stress",
+                                    data: data.stress,
+                                    borderColor: "#f43f5e",
+                                    borderWidth: 3,
+                                    tension: 0.4,
+                                    hidden: true
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: "index",
+                                intersect: false,
+                            },
+                            scales: {
+                                y: {
+                                    min: 0,
+                                    max: 10,
+                                    grid: { color: "#334155" },
+                                    ticks: { color: "#94a3b8" }
+                                },
+                                x: {
+                                    grid: { display: false},
+                                    ticks: {color: "#94a3b8", font: { weight: "bold" } }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: "#f8fafc",
+                                        font: { family: "Montserrat", size: 14},
+                                        usePointStyle: true,
+                                        padding: 20
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: "rgba(15, 23, 42, 0.9)",
+                                    titleFont: { size: 14, family: "Montserrat" },
+                                    bodyFont: { size: 13, family: "Montserrat" },
+                                    padding: 12,
+                                    cornerRadius: 8
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error loading chart data:", error)
+                }
+            }
+
+            function toggleMenu() {
+                const menu = document.getElementById("mobile-menu");
+                menu.classList.toggle("hidden");
+            }
+
+
+            function showToast(message, isError = false) {
+                const toast = document.getElementById("toast");
+                const toastMessage = document.getElementById("toast-message");
+                const toastIcon = document.getElementById("toast-icon");
+
+                toastMessage.innerText = message;
+
+                if (isError) {
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-red-500/20 text-red-400 text-xl";
+                    toastIcon.innerHTML = "❌";
+                } else {
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl";
+                    toastIcon.innerHTML = "✅"
+                }
+
+                toast.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
+                toast.classList.add("opacity-100", "translate-y-0")
+
+                setTimeout(() => {
+                    toast.classList.remove("opacity-100", "translate-y-0");
+                    toast.classList.add("opacity-0", "translate-y-4", "pointer-events-none")
+                }, 3000);
+            }
+
+            window.addEventListener("DOMContentLoaded", () =>{
+                loadTrendChart();
+                loadSleepChart();
+                loadWorkChart();
+                loadEnvironmentChart();
+
+            })
+        </script>
+    </body>
 </html>

@@ -47,66 +47,104 @@
                 <h4 class="text-slate-400 text-md" name="Raoul">Welcome back, Raoul!</h4>
             </div>
             <div class="bg-slate-800 rounded-xl shadow-sm p-4 w-full">
-                <p id="weather-display" class="justify-self-left">Fetching Weather...</p>
+                <p id="weather-display" class="justify-self-left">—</p>
             </div>
             <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="justify-self-center">Mood</h3>
-                <p id="mood-score" class="justify-self-center text-6xl pt-5 pb-4"></p>
+                <p id="mood-score" class="justify-self-center text-6xl pt-5 pb-4">—</p>
             </div>
             <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="justify-self-center">Energy</h3>
-                <p id="energy-score" class="justify-self-center text-6xl pt-5 pb-4"></p>
+                <p id="energy-score" class="justify-self-center text-6xl pt-5 pb-4">—</p>
             </div>
             <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="justify-self-center">Stress</h3>
-                <p id="stress-score" class="justify-self-center text-6xl pt-5 pb-4"></p>
+                <p id="stress-score" class="justify-self-center text-6xl pt-5 pb-4">—</p>
             </div>
             <button onclick="showView('quick-log-mood')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 transition-all duration-200 flex items-center justify-center gap-2">⚡ Quick Log</button>
             <button onclick="window.location.href='/detail'" class="w-full py-4 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-semibold rounded-2xl border border-slate-700 transition-all duration-200 flex items-center justify-center gap-2">📝 Detail Log</button>
             <br>
-            <button id="delete-btn" onclick="deleteEntry(this);">❌ Reset Today's Entry</button>
+            <div class="flex flex-row">
+                <button id="delete-first" onclick="safetyCheck();" class="w-full py-4 p-5 bg-red-500 text-white font-bold rounded-2xl">❌ Reset Today's Entry</button>
+                <span id="sure-check" class="hidden py-4 pr-4">Are you sure?</span><button id="delete-second" onclick="deleteEntry(this)" class="hidden p-4 bg-red-500 text-white font-bold rounded-2xl">Yes, reset entry!</button>
+            </div>
         </div>
 
         <div id="quick-log-mood" style="display: none;">
-            <h2>Quick Log</h2>
-            <div>
-                <label for="quick_mood">What's your mood today?</label><br>
-                <button onclick="setMood(1)">😭 Terrible</button>
-                <button onclick="setMood(3)">☹️ Bad</button>
-                <button onclick="setMood(5)">😐 Okay</button>
-                <button onclick="setMood(7)">🙂 Good</button>
-                <button onclick="setMood(9)">🤩 Excellent</button>
+            <div class="self-start">
+                <h2 class="text-2xl font-bold pt-5">Quick Log</h2>
+            </div>
+            <div class="flex flex-col items-center p-5 gap-3">
+                <label for="quick_mood" class="justify-center text-4xl text-center mb-2 pt-5 text-slate-300 drop-shadow-md">What's your mood today?</label><br>
+                <button onclick="setMood(1)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">😭 Terrible</button>
+                <button onclick="setMood(3)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">☹️ Bad</button>
+                <button onclick="setMood(5)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">😐 Okay</button>
+                <button onclick="setMood(7)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">🙂 Good</button>
+                <button onclick="setMood(9)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">🤩 Excellent</button>
             </div>
         </div>
         <div id="quick-log-energy" style="display: none;">
-            <h2>Quick Log</h2>
-            <div>
-                <label for="quick_energy">What's your energy today?</label><br>
-                <button onclick="setEnergy(1)">🔋 Exhausted</button>
-                <button onclick="setEnergy(3)">🪫 Low</button>
-                <button onclick="setEnergy(5)">🔌 Normal</button>
-                <button onclick="setEnergy(7)">⚡ High</button>
-                <button onclick="setEnergy(9)">🚀 Wired</button>
+            <div class="self-start">
+                <h2 class="text-2xl font-bold pt-5">Quick Log</h2>
+            </div>
+            <div class="flex flex-col items-center p-5 gap-3">
+                <label for="quick_energy" class="justify-center text-4xl text-center mb-2 pt-5 text-slate-300 drop-shadow-md">What's your energy today?</label><br>
+                <button onclick="setEnergy(1)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">🔋 Exhausted</button>
+                <button onclick="setEnergy(3)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">🪫 Low</button>
+                <button onclick="setEnergy(5)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">🔌 Normal</button>
+                <button onclick="setEnergy(7)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">⚡ High</button>
+                <button onclick="setEnergy(9)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">🚀 Wired</button>
                 <br>
-                <button onclick="showView('quick-log-mood')">Go Back</button>
+                <button onclick="showView('quick-log-mood')" class="w-1/2 py-4 bg-slate-800 hover:bg-slate-700 text-center px-6 rounded-2xl transition-all">Go Back</button>
             </div>
         </div>
         <div id="quick-log-stress" style="display: none;">
-            <h2>Quick Log</h2>
-            <div>
-                <label for="quick_stress">What's your stress level today?</label><br>
-                <button onclick="setStress(1)">🧘 Relaxed</button>
-                <button onclick="setStress(3)">🍃 Calm</button>
-                <button onclick="setStress(5)">😬 Tense</button>
-                <button onclick="setStress(7)">😰 Stressed</button>
-                <button onclick="setStress(9)">🤯 Overwhelmed</button>
+            <div class="self-start">
+                <h2 class="text-2xl font-bold pt-5">Quick Log</h2>
+            </div>
+            <div class="flex flex-col items-center p-5 gap-3">
+                <label for="quick_stress" class="justify-center text-4xl text-center mb-2 pt-5 text-slate-300 drop-shadow-md">How's your stress today?</label><br>
+                <button onclick="setStress(1)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">🧘 Relaxed</button>
+                <button onclick="setStress(3)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">🍃 Calm</button>
+                <button onclick="setStress(5)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">😬 Tense</button>
+                <button onclick="setStress(7)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">😰 Stressed</button>
+                <button onclick="setStress(9)" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-left px-6 rounded-2xl transition-all">🤯 Overwhelmed</button>
                 <br>
-                <button onclick="showView('quick-log-energy')">Go Back</button>
+                <button onclick="showView('quick-log-energy')" class="w-1/2 py-4 bg-slate-800 hover:bg-slate-700 text-center px-6 rounded-2xl transition-all">Go Back</button>
             </div>
         </div>
-
+        <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center p-4 mb-4 w-full max-w-xs text-slate-100 bg-slate-800 rounded-2xl shadow-lg border border-slate-700 transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
+            <div id="toast-icon" class="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl">
+                ✅
+            </div>
+            <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
+        </div>
         <script>
             document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
+
+            function showToast(message, isError = false) {
+                const toast = document.getElementById("toast");
+                const toastMessage = document.getElementById("toast-message");
+                const toastIcon = document.getElementById("toast-icon");
+
+                toastMessage.innerText = message;
+
+                if (isError) {
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-red-500/20 text-red-400 text-xl";
+                    toastIcon.innerHTML = "❌";
+                } else {
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl";
+                    toastIcon.innerHTML = "✅"
+                }
+
+                toast.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
+                toast.classList.add("opacity-100", "translate-y-0")
+
+                setTimeout(() => {
+                    toast.classList.remove("opacity-100", "translate-y-0");
+                    toast.classList.add("opacity-0", "translate-y-4", "pointer-events-none")
+                }, 3000);
+            }
 
             function showView(viewId) {
                 document.getElementById('dashboard-view').style.display = 'none';
@@ -116,7 +154,9 @@
 
                 document.getElementById(viewId).style.display = 'block';
 
-                document.getElementById('mobile-menu').style.display = 'none';
+                const menu = document.getElementById("mobile-menu");
+                menu.style.display = "";
+                menu.classList.add("hidden");
             }
 
             let quickMood = 5;
@@ -152,7 +192,7 @@
                     const data = await response.json();
 
                     if (!response.ok) {
-                        alert(data.message);
+                        showToast(data.message, true);
                         throw new Error(data.message);
                     }
 
@@ -160,61 +200,20 @@
                 })
                 .then(data => {
                     console.log("Success:", data);
-                    alert("Entry saved successfully");
+                    showToast("Entry saved successfully", false);
                     showView("dashboard-view");
-                    location.reload();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                    
                 })
                 .catch((error) => {
-                    console.error("Error:", error);
-                    showView("dashboard-view");
+                    showToast(error.message, true);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
                 });
             }
-
-            let deleteTimer = null;
-            let countdownLeft = 5;
-            const deleteBtn = document.getElementById("delete-btn");
-
-            deleteBtn.addEventListener("click", function() {
-                if (deleteTimer === null) {
-                    countdownLeft = 5;
-                    deleteBtn.innerText = `Confirm Deletion (${countdownLeft}s)`;
-
-                    deleteTimer = setInterval(() => {
-                        countdownLeft--;
-
-                        if (countdownLeft > 0) {
-                            deleteBtn.innerText = `Confirm Deletion (${countdownLeft}s)`;
-                        } else {
-                            clearInterval(deleteTimer);
-                            deleteTimer = null;
-                            deleteBtn.innerText = "❌ Delete Today's Entry";
-                        }
-                    }, 1000);
-                } else {
-                    clearInterval(deleteTimer);
-                    deleteTimer = null;
-                    deleteBtn.innerText = "Deleting...";
-
-                    fetch("/delete-entry", {
-                        method: "DELETE"
-                    })
-                    .then(async response => {
-                        const data = await response.json();
-                        if (!response.ok) throw new Error(data.message);
-                        return data
-                    })
-                    .then(data => {
-                        alert("Today's entry has been deleted.");
-                        deleteBtn.innerText = "❌ Delete Today's Entry";
-                        location.reload()
-                    })
-                    .catch(error => {
-                        alert("Error: " + error.message)
-                        deleteBtn.innerText = "❌ Delete Today's Entry";
-                        location.reload()
-                    });
-                }
-            });
 
             function getAverages () {
                 fetch("/get-averages", {
@@ -234,7 +233,7 @@
                     document.getElementById("stress-score").className = `font-bold justify-self-center text-6xl pt-5 pb-4 ${getScoreColor("stress", data["stress_score"])}`
                 })
                 .catch(error => {
-                    alert("Error: " + error.message);
+                    showToast("Error: " + error.message, true);
                 });
             };
 
@@ -252,7 +251,7 @@
                 })
                 .catch(error => {
                     document.getElementById("weather-display").innerText = "Could not fetch weather data."
-                    alert("Error: " + error.message)
+                    showToast("Error: " + error.message, true)
                 })
             }
 
@@ -270,7 +269,66 @@
 
             function toggleMenu() {
                 const menu = document.getElementById("mobile-menu");
-                menu.classList.toggle("hidden")
+                menu.classList.toggle("hidden");
+            }
+
+            const deleteFirst = document.getElementById("delete-first");
+            const safety = document.getElementById("sure-check");
+            const deleteSecond = document.getElementById("delete-second");
+            let deleteTimer;
+
+            function safetyCheck() {
+                let countdownLeft = 5;
+
+                clearInterval(deleteTimer)
+
+                deleteFirst.className = "w-full py-4 p-5 bg-red-500 text-white font-bold rounded-2xl hidden";
+                safety.className = "py-4 pr-4";
+                deleteSecond.className = "p-4 bg-red-500 text-white font-bold rounded-2xl";
+
+                deleteTimer = setInterval(() => {
+                    countdownLeft--;
+                    if (countdownLeft <= 0) {
+                        deleteFirst.className = "w-full py-4 p-5 bg-red-500 text-white font-bold rounded-2xl";
+                        safety.className = "py-4 pr-4 hidden";
+                        deleteSecond.className = "p-4 bg-red-500 text-white font-bold rounded-2xl hidden";
+
+                        clearInterval(deleteTimer);
+                    }
+                }, 1000)
+            }
+
+            function deleteEntry(buttonElement) {
+                buttonElement.innerText = "Deleting...";
+
+                clearInterval(deleteTimer)
+
+                fetch("/delete-entry", {
+                    method: "DELETE"
+                })
+                .then(async response => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message);
+                    }
+                    return data
+                })
+                .then(data => {
+                    showToast("Today's entry has been completely reset.", false);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                    
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    showToast("Something went wrong: " + error.message, true);
+                    setTimeout(()  => {
+                        window.location.reload();
+                    }, 3000);
+                    
+                });
             }
 
             window.addEventListener("DOMContentLoaded", () => {

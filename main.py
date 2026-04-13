@@ -85,7 +85,9 @@ def home():
 
 @app.route("/detail")
 def detail_log():
-    return render_template("detail-log.html")
+    all_activities = db.session.query(Activity).all()
+    all_substances = db.session.query(Substance).all()
+    return render_template("detail-log.html", activities=all_activities, substances=all_substances)
 
 @app.route("/visualizations")
 def visualization():
@@ -264,6 +266,123 @@ def get_weekly_averages():
         "energy_score": round(stats.avg_energy, 1),
         "stress_score" : round(stats.avg_stress, 1)
     }), 200
+
+@app.route("/get-trend-data", methods=["GET"])
+def get_trend_data():
+    seven_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
+
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp >= seven_days_ago
+    ).order_by(MoodEntry.timestamp.asc()).all()
+
+    if not entries:
+        return jsonify({
+            "labels": [],
+            "moods": [],
+            "energies": [],
+            "stress": []
+        }), 200
+    
+    data = {
+        "labels": [e.timestamp.strftime("%a") for e in entries],
+        "moods": [e.mood for e in entries],
+        "energies": [e.energy for e in entries],
+        "stress": [e.stress for e in entries]
+    }
+
+    return jsonify(data), 200
+
+@app.route("/get-sleep-data", methods=["GET"])
+def get_sleep_data():
+    seven_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
+
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp >= seven_days_ago
+    ).order_by(MoodEntry.timestamp.asc()).all()
+
+    if not entries:
+        return jsonify({
+            "labels": [],
+            "sleep_hours": [],
+            "sleepquality": [],
+            "moods": [],
+            "energies": [],
+            "stress": []
+        }), 200
+    
+    data = {
+        "labels": [e.timestamp.strftime("%a") for e in entries],
+        "sleep_time": [e.sleep_time for e in entries],
+        "sleep_quality": [e.sleep_quality for e in entries],
+        "moods": [e.mood for e in entries],
+        "energies": [e.energy for e in entries],
+        "stress": [e.stress for e in entries]
+    }
+
+    return jsonify(data), 200
+
+@app.route("/get-work-data", methods=["GET"])
+def get_work_data():
+    thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
+
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp >= thirty_days_ago
+    ).order_by(MoodEntry.timestamp.asc()).all()
+
+    scatter_data = []
+    for e in entries:
+        scatter_data.append({
+            "x": e.work_hours,
+            "y": e.mood,
+            "date": e.timestamp.strftime("%b %d")
+        })
+    return jsonify({"data": scatter_data}), 200
+
+@app.route("/get-environments-data", methods=["GET"])
+def get_env_data():
+    thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp >= thirty_days_ago
+    ).all()
+
+    categories = {
+        "Home": lambda e: e.location == "home",
+        "Work": lambda e: e.location == "work",
+        "Outdoors": lambda e: e.location == "outdoors",
+        "Transit" : lambda e: e.location == "transit",
+        "Partner" : lambda e: e.social_context == "partner",
+        "Friends" : lambda e: e.social_context == "friends",
+        "Family" : lambda e: e.social_context == "family",
+        "Alone" : lambda e: e.social_context == "alone",
+        "Co-Workers": lambda e: e.social_context == "coworkers",
+        "Strangers": lambda e: e.social_context == "strangers"
+    }
+
+    labels = []
+    avg_moods = []
+    avg_energies = []
+    avg_stresses = []
+
+    for name, condition in categories.items():
+        matched_entries = [e for e in entries if condition(e)]
+
+        if matched_entries:
+            labels.append(name)
+            avg_moods.append(round(sum(e.mood for e in matched_entries) / len(matched_entries), 1))
+            avg_energies.append(round(sum(e.energy for e in matched_entries) / len(matched_entries), 1))
+            avg_stresses.append(round(sum(e.stress for e in matched_entries) / len(matched_entries), 1))
+
+    return jsonify({
+        "labels": labels,
+        "moods": avg_moods,
+        "energies": avg_energies,
+        "stress": avg_stresses
+    }), 200
+
 
 
 if __name__ == "__main__":

@@ -3,277 +3,409 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                extend: {
+                    fontFamily: {
+                    // This tells Tailwind to replace its default "sans" font with our new Inter font
+                    sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+                }
+            }
+            </script>
         <title>Detail Log</title>
     </head>
-    <body>
-        <h1>Detail Log</h1>
-        <button id="hamburger-btn">☰ Menu</button>
-        <nav id="mobile-menu" style="display: none;">
-            <ul>
-                <li><a href="/">Dashboard</a></li>
-                <li><a href="/detail">Detail Log</a></li>
-                <li><a href="/visualizations">Visualizations</a></li>
-            </ul>
-        </nav>
-        <div>
-            <h2>Weather</h2>
-            <p id="weather-display">Fetching Weather...</p>
-        </div>
-        <div>
-            <h2>Core Metrics</h2>
-            <div>
-                <label for="mood">Mood:</label>
-                <br>
-                <input type="range" id="mood" min="0" max="10" value="5">
-                <br>
-                <span id="mood-value">5</span>
-            </div>
-            <div>
-                <label for="energy">Energy:</label>
-                <br>
-                <input type="range" id="energy" min="0" max="10" value="5">
-                <br>
-                <span id="energy-value">5</span>
-            </div>
-            <div>
-                <label for="stress">Stress:</label>
-                <br>
-                <input type="range" id="stress" min="0" max="10" value="5">
-                <br>
-                <span id="stress-value">5</span>
-            </div>
-        </div>
-        <div>
-            <h2>Sleep</h2>
-            <div>
-                <div>
-                    <label for="sleep_quality">Sleep Quality</label>
-                    <br>
-                    <input type="radio" id="sleep-bad" name="sleep_quality" value="bad">
-                    <label for="sleep-bad">Bad</label>
-                    <input type="radio" id="sleep-okay" name="sleep_quality" value="okay" checked>
-                    <label for="sleep-okay">Okay</label>
-                    <input type="radio" id="sleep-good" name="sleep_quality" value="good">
-                    <label for="sleep-good">Good</label>
-                </div>
-                <br>
-                <div>
-                    <label for="sleep_time">Sleep Time</label>
-                    <br>
-                    <input type="range" id="sleep-time" min="0" max="15" value="7.5" step="0.5">
-                    <br>
-                    <span id="sleep-time-value">7.5</span>
-                </div>
-            </div>
-        </div>
-        <div>
-            <h2>Emotions</h2>
-            <div>
-                <div>
-                    <label for="primary-emotion">Primary Emotion</label>
-                    <br>
-                    <input type="radio" id="prim-emotion-fear" name="primary-emotion" value="fear">
-                    <label for="prim-emotion-fear">Fear</label>
-                    <input type="radio" id="prim-emotion-anger" name="primary-emotion" value="anber">
-                    <label for="prim-emotion-anger">Anger</label>
-                    <input type="radio" id="prim-emotion-sadness" name="primary-emotion" value="sadness">
-                    <label for="prim-emotion-sadness">Sadness</label>
-                    <input type="radio" id="prim-emotion-neutral" name="primary-emotion" value="neutral" checked>
-                    <label for="prim-emotion-neutral">Neutral</label>
-                    <input type="radio" id="prim-emotion-joy" name="primary-emotion" value="joy">
-                    <label for="prim-emotion-joy">Joy</label>
-                    <input type="radio" id="prim-emotion-disgust" name="primary-emotion" value="disgust">
-                    <label for="prim-emotion-disgust">Disgust</label>
-                    <input type="radio" id="prim-emotion-surprise" name="primary-emotion" value="surprise">
-                    <label for="prim-emotion-surprise">Surprise</label>
-                </div>
-                <br>
-                <div>
-                    <label for="secondary-emotion">Secondary Emotion</label>
-                    <br>
-                    <input type="radio" id="second-emotion-fear" name="secondary-emotion" value="fear">
-                    <label for="second-emotion-fear">Fear</label>
-                    <input type="radio" id="second-emotion-anger" name="secondary-emotion" value="anger">
-                    <label for="second-emotion-anger">Anger</label>
-                    <input type="radio" id="second-emotion-sadness" name="secondary-emotion" value="sadness">
-                    <label for="second-emotion-sadness">Sadness</label>
-                    <input type="radio" id="second-emotion-neutral" name="secondary-emotion" value="neutral" checked>
-                    <label for="second-emotion-neutral">Neutral</label>
-                    <input type="radio" id="second-emotion-joy" name="secondary-emotion" value="joy">
-                    <label for="second-emotion-joy">Joy</label>
-                    <input type="radio" id="second-emotion-disgust" name="secondary-emotion" value="disgust">
-                    <label for="second-emotion-disgust">Disgust</label>
-                    <input type="radio" id="second-emotion-surprise" name="secondary-emotion" value="surprise">
-                    <label for="second-emotion-surprise">Surprise</label>
-                </div>
-            </div>
-        </div>
-        <div>
-            <h2>Activities</h2>
-            <div>
-                <label for="activities">Activities</label>
-                <br>
-                <input type="checkbox" id="act-work" name="activities" value="work" data-id="1">
-                <label for="act-work">Work</label>
-                <input type="checkbox" id="act-workout" name="activities" value="workout" data-id="2">
-                <label for="act-workout">Workout</label>
-                <input type="checkbox" id="act-youtube" name="activities" value="youtube" data-id="3">
-                <label for="act-youtube">Youtube/Film Watching</label>
-                <input type="checkbox" id="act-doomscrolling" name="activities" value="doomscrolling" data-id="4">
-                <label for="act-doomscrolling">Doomscrolling</label>
-                <input type="checkbox" id="act-going-out" name="activities" value="going-out" data-id="5">
-                <label for="act-going-out">Going Out</label>
-                <input type="checkbox" id="act-meditating" name="activities" value="meditating" data-id="6">
-                <label for="act-meditating">Meditating</label>
-                <input type="checkbox" id="act-travelling" name="activities" value="travelling" data-id="7">
-                <label for="act-travelling">Travelling/Walking Around</label>
-                <input type="checkbox" id="act-meeting-friends" name="activities" value="meeting-friends" data-id="8">
-                <label for="act-meeting-friends">Meeting Friends</label>
-                <input type="checkbox" id="act-meeting-family" name="activities" value="meeting-family" data-id="9">
-                <label for="act-meeting-family">Meeting Family</label>
-                <input type="checkbox" id="act-transit" name="activities" value="transit" data-id="10">
-                <label for="act-transit">Transit</label>
-                <input type="checkbox" id="act-studying" name="activities" value="studying" data-id="11">
-                <label for="act-studying">Studying</label>
-                <input type="checkbox" id="act-napping" name="activities" value="napping" data-id="12">
-                <label for="act-napping">Napping</label>
-            </div>
-        </div>
-        <div>
-            <h2>Work</h2>
-            <div>
-                <div>
-                    <label for="work-hours">Work Hours</label>
-                    <br>
-                    <input type="range" id="work-hours" min="0" max="12" value="6" step="0.5">
-                    <br>
-                    <span id="work-hours-value">6</span>
-                </div>
-                <br>
-                <div>
-                    <label for="work-place">Work Place</label>
-                    <br>
-                    <input type="radio" id="work-home" name="work-place" value="home">
-                    <label for="work-home">At Home</label>
-                    <input type="radio" id="work-workplace" name="work-place" value="workplace" checked>
-                    <label for="work-workplace">At Workplace</label>
-                    <input type="radio" id="work-outside" name="work-place" value="outside">
-                    <label for="work-outside">Outside</label>
-                </div>
-            </div>
-        </div>
-        <div>
-            <h2>Contexts</h2>
-            <div>
-                <div>
-                    <label for="social-context">(Main) Social Context</label>
-                    <br>
-                    <input type="radio" id="social-partner" name="social-context" value="partner">
-                    <label for="social-partner">Partner</label>
-                    <input type="radio" id="social-friends" name="social-context" value="friends">
-                    <label for="social-friends">Friends</label>
-                    <input type="radio" id="social-family" name="social-context" value="family">
-                    <label for="social-family">Family</label>
-                    <input type="radio" id="social-alone" name="social-context" value="alone" checked>
-                    <label for="social-alone">Alone</label>
-                    <input type="radio" id="social-coworkers" name="social-context" value="coworkers">
-                    <label for="social-coworkers">Co-Workers</label>
-                    <input type="radio" id="social-strangers" name="social-context" value="strangers">
-                    <label for="social-strangers">Strangers</label>
-                </div>
-                <br>
-                <div>
-                    <label for="locations">(Main) Location</label>
-                    <br>
-                    <input type="radio" id="loc-home" name="locations" value="home">
-                    <label for="loc-home">Home</label>
-                    <input type="radio" id="loc-work" name="locations" value="work" checked>
-                    <label for="loc-work">Work</label>
-                    <input type="radio" id="loc-outdoors" name="locations" value="outdoors">
-                    <label for="loc-outdoors">Outdoors</label>
-                    <input type="radio" id="loc-transit" name="locations" value="transit">
-                    <label for="loc-transit">Transit</label>
-                </div>
-                <br>
-                <div>
-                    <label for="substances">Substances Consumed</label>
-                    <br>
-                    <input type="checkbox" id="substance-alcohol" name="substances" value="alcohol" data-id="1" onclick="displaySlider(this.value)">
-                    <label for="substance-alcohol">Alcohol</label>
-                    <br>
-                    <input type="range" id="alcohol" min="1" max="10" value="1" style="display: none;">
-                    <span id="alcohol-value" style="display: none">1 beverage</span>
-                    <input type="checkbox" id="substance-caffeine" name="substances" value="caffeine" data-id="2" onclick="displaySlider(this.value)">
-                    <label for="substance-caffeine">Caffeine</label>
-                    <br>
-                    <input type="range" id="caffeine" min="1" max="10" value="1" style="display: none;">
-                    <span id="caffeine-value" style="display: none">1 cup of coffee / tea</span>
-                    <input type="checkbox" id="substance-sugar" name="substances" value="sugar" data-id="3" onclick="displaySlider(this.value)">
-                    <label for="substance-sugar">Sugar</label>
-                    <br>
-                    <input type="range" id="sugar" min="1" max="10" value="1" style="display: none;">
-                    <span id="sugar-value" style="display: none">1 sugary snack</span>
-                    <input type="checkbox" id="substance-meds" name="substances" value="meds" data-id="4" onclick="displaySlider(this.value)">
-                    <label for="substance-meds">Meds</label>
-                    <br>
-                    <input type="range" id="meds" min="1" max="10" value="1" style="display: none;">
-                    <span id="meds-value" style="display: none">1 pill</span>
-                </div>
-            </div>
-        </div>
-        <div>
-            <h2>Notes</h2>
-            <div>
-                <label for="notes">Notes/Diary (optional)</label>
-                <br>
-                <textarea id="notes-textarea" name="notes" rows="4" cols="100" placeholder="Have you experienced something interesting/relevant?"></textarea>
-            </div>
-        </div>
-        <br>
-        <button id="save-btn">Save Entry</button>
-        <script>
-            document.getElementById("hamburger-btn").addEventListener("click", function() {
-                let menu = document.getElementById("mobile-menu");
+    <body class="bg-slate-900 text-slate-100 font-sans p-4">
+        <nav class="flex items-center justify-between p-5 w-full bg-transparent relative top-0">
+            <button id="hamburger-btn" class="flex flex-col gap-1.5 focus:outline-none top-0">
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+            </button>
 
-                if (menu.style.display == "none") {
-                    menu.style.display = "block";
+            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Raoul's Tracker</span>
+
+            <div class="w-6"></div>
+        </nav>
+        <div id="mobile-menu" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center gap-8">
+            <button onclick="toggleMenu()" class="absolute top-6 left-6 text-white text-3xl">&times;</button>
+
+            <a href="/" class="text-2xl font-bold text-white hover:text-indigo-400">Dashboard</a>
+            <a href="/detail" class="text-2xl font-bold text-white hover:text-indigo-400">Detail Log</a>
+            <a href="/visualizations" class="text-2xl font-bold text-white hover:text-indigo-400">Visualizations</a>
+        </div>
+        <hr>
+        <div id="detail-log" class="flex flex-col justify-center items-center gap-4">
+            <div class="self-start">
+                <h2 class="text-2xl font-bold pt-5">Detail Log</h2>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <p id="weather-display" class="justify-self-start">—</p>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Core Metrics</h2>
+                
+                <div class="flex flex-col gap-6">
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="mood" class="text-sm font-medium text-slate-300">Mood</label>
+                            <span id="mood-value" class="text-lg font-bold text-slate-300">-</span>
+                        </div>
+                        <input id="mood" type="range" min="1" max="10" value="5" oninput="document.getElementById('mood-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                    </div>
+
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="energy" class="text-sm font-medium text-slate-300">Energy</label>
+                            <span id="energy-value" class="text-lg font-bold text-slate-300">-</span>
+                        </div>
+                        <input id="energy" type="range" min="1" max="10" value="5" oninput="document.getElementById('energy-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                    </div>
+
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="stress" class="text-sm font-medium text-slate-300">Stress</label>
+                            <span id="stress-value" class="text-lg font-bold text-slate-300">-</span>
+                        </div>
+                        <input id="stress" type="range" min="1" max="10" value="5" oninput="document.getElementById('stress-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Sleep</h2>
+                <div class="flex flex-col gap-2">
+                    <label for="sleep_quality" class="text-sm font-medium text-slate-300">Quality</label>
+                    <div class="flex flex-row justify-center gap-2">
+                        <div>
+                            <input type="radio" id="sleep-bad" name="sleep_quality" value="bad" class="hidden peer ">
+                            <label for="sleep-bad" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Bad</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="sleep-okay" name="sleep_quality" value="okay" checked class="hidden peer">
+                            <label for="sleep-okay" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Okay</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="sleep-good" name="sleep_quality" value="good" class="hidden peer">
+                            <label for="sleep-good" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Good</label>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="sleep-time" class="text-sm font-medium text-slate-300">Time</label>
+                        <span id="sleep-time-value" class="text-lg font-bold text-slate-300">7.5</span>
+                    </div>
+                    <input type="range" id="sleep-time" min="0" max="15" value="7.5" step="0.5" oninput="document.getElementById('sleep-time-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Emotions</h2>
+                <div class="flex flex-col gap-2">
+                    <label for="primary-emotion" class="text-sm font-medium text-slate-300">Primary Emotion</label>
+                    <div class="flex flex-wrap justify-left gap-2">
+                        <div>
+                            <input type="radio" id="prim-emotion-fear" name="primary-emotion" value="fear" class="hidden peer">
+                            <label for="prim-emotion-fear" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Fear</label>
+                        </div>    
+                        <div>
+                            <input type="radio" id="prim-emotion-anger" name="primary-emotion" value="anger" class="hidden peer">
+                            <label for="prim-emotion-anger" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Anger</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-sadness" name="primary-emotion" value="sadness" class="hidden peer">
+                            <label for="prim-emotion-sadness" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Sadness</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-neutral" name="primary-emotion" value="neutral" checked class="hidden peer">
+                            <label for="prim-emotion-neutral" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Neutral</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-joy" name="primary-emotion" value="joy" class="hidden peer">
+                            <label for="prim-emotion-joy" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Joy</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-disgust" name="primary-emotion" value="disgust" class="hidden peer">
+                            <label for="prim-emotion-disgust" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Disgust</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-surprise" name="primary-emotion" value="surprise" class="hidden peer">
+                            <label for="prim-emotion-surprise" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Surprise</label>
+                        </div>
+                    </div>
+                    <label for="secondary-emotion" class="text-sm font-medium text-slate-300 pt-3">Secondary Emotion</label>
+                    <div class="flex flex-wrap justify-left gap-2">
+                        <div>
+                            <input type="radio" id="second-emotion-fear" name="secondary-emotion" value="fear" class="hidden peer">
+                            <label for="second-emotion-fear" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Fear</label>
+                        </div>    
+                        <div>
+                            <input type="radio" id="second-emotion-anger" name="secondary-emotion" value="anger" class="hidden peer">
+                            <label for="second-emotion-anger" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Anger</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-sadness" name="secondary-emotion" value="sadness" class="hidden peer">
+                            <label for="second-emotion-sadness" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Sadness</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-neutral" name="secondary-emotion" value="neutral" checked class="hidden peer">
+                            <label for="second-emotion-neutral" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Neutral</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-joy" name="secondary-emotion" value="joy" class="hidden peer">
+                            <label for="second-emotion-joy" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Joy</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-disgust" name="secondary-emotion" value="disgust" class="hidden peer">
+                            <label for="second-emotion-disgust" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Disgust</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-surprise" name="secondary-emotion" value="surprise" class="hidden peer">
+                            <label for="second-emotion-surprise" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Surprise</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Activities</h2>
+                <div class="flex flex-col gap-2">
+                        <div class="flex flex-wrap flex-row gap-2">
+                            {% for activity in activities %}
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="act-{{ activity.id }}" name="activities" data-id="{{ activity.id }}" class="hidden peer">
+                                <label for="act-{{ activity.id }}" class="inline-block px-5 py-2 rounded-full border border-slate-700 bg-slate-800 text-slate-300 font-semibold cursor-pointer transition-all duration-200 select-none hover:bg-slate-700 peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">{{ activity.name.capitalize() }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Work</h2>
+                <div class="flex flex-col gap-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="work-hours" class="text-sm font-medium text-slate-300">Hours</label>
+                        <span id="work-hours-value" class="text-lg font-bold text-slate-300">6</span>
+                    </div>
+                    <input type="range" id="work-hours" min="0" max="15" value="7.5" step="0.5" oninput="document.getElementById('work-hours-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                    <label for="work-place" class="text-sm font-medium text-slate-300 pt-3">Place</label>
+                    <div class="flex flex-row justify-center gap-2">
+                        <div>
+                            <input type="radio" id="work-home" name="work-place" value="home" class="hidden peer">
+                            <label for="work-home" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Home</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="work-workplace" name="work-place" value="workplace" checked class="hidden peer">
+                            <label for="work-workplace" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Office</label>
+                        </div>
+                        <div>                        
+                            <input type="radio" id="work-outside" name="work-place" value="outside" class="hidden peer">
+                            <label for="work-outside" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Outside</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Contexts</h2>
+                <div class="flex flex-col gap-4">
+                <label for="social-context" class="text-sm font-medium text-slate-300">(Main) Social Context</label>
+                    <div class="flex flex-wrap justify-left gap-2">
+                        <div>
+                            <input type="radio" id="social-partner" name="social-context" value="partner" class="hidden peer">
+                            <label for="social-partner" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Partner</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-friends" name="social-context" value="friends" class="hidden peer">
+                            <label for="social-friends" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Friends</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-family" name="social-context" value="family" class="hidden peer">
+                            <label for="social-family" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Family</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-alone" name="social-context" value="alone" checked class="hidden peer">
+                            <label for="social-alone" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Alone</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-coworkers" name="social-context" value="coworkers" class="hidden peer">
+                            <label for="social-coworkers" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Co-Workers</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-strangers" name="social-context" value="strangers" class="hidden peer">
+                            <label for="social-strangers" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Strangers</label>
+                        </div>
+                    </div>
+                <label for="locations" class="text-sm font-medium text-slate-300">(Main) Location</label>
+                    <div class="flex flex-wrap justify-left gap-2">
+                        <div>
+                            <input type="radio" id="loc-home" name="locations" value="home" class="hidden peer">
+                            <label for="loc-home" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Home</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="loc-work" name="locations" value="work" checked class="hidden peer">
+                            <label for="loc-work" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Work</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="loc-outdoors" name="locations" value="outdoors" class="hidden peer">
+                            <label for="loc-outdoors" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Outdoors</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="loc-transit" name="locations" value="transit" class="hidden peer">
+                            <label for="loc-transit" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Transit</label>
+                        </div>
+                    </div>
+                <label for="substances" class="text-sm font-medium text-slate-300">Substances Consumed</label>
+                    <div class="flex flex-col gap-4">
+                        {% for substance in substances %}
+                            <div class="p-4 bg-slate-900 rounded-xl shadow-sm border border-slate-700">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" 
+                                        id="substance-{{ substance.id }}" 
+                                        name="substances" 
+                                        data-id="{{ substance.id }}" 
+                                        value="slider-container-{{ substance.id }}"
+                                        class="w-5 h-5 accent-blue-500 cursor-pointer"
+                                        onclick="displaySlider('slider-container-{{ substance.id }}', 'value-{{ substance.id }}', this)">
+                                    <label for="substance-{{ substance.id }}" class="text-lg font-semibold text-slate-200 cursor-pointer">
+                                        {{ substance.name.capitalize() }}
+                                    </label>
+                                </div>
+                                
+                                <div id="slider-container-{{ substance.id }}" style="display: none;" class="mt-4 pl-8">
+                                    
+                                    <input type="range" 
+                                        id="slider-{{ substance.id }}" 
+                                        min="1" max="10" value="1" 
+                                        class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                                        
+                                        /* Webkit (Chrome/Safari) */
+                                        [&::-webkit-slider-thumb]:appearance-none 
+                                        [&::-webkit-slider-thumb]:w-6 
+                                        [&::-webkit-slider-thumb]:h-6 
+                                        [&::-webkit-slider-thumb]:bg-blue-500 
+                                        [&::-webkit-slider-thumb]:rounded-full 
+                                        [&::-webkit-slider-thumb]:transition-all
+                                        [&::-webkit-slider-thumb]:hover:bg-blue-400
+                                        [&::-webkit-slider-thumb]:hover:scale-110
+                                        
+                                        /* Firefox */
+                                        [&::-moz-range-thumb]:appearance-none 
+                                        [&::-moz-range-thumb]:w-6 
+                                        [&::-moz-range-thumb]:h-6 
+                                        [&::-moz-range-thumb]:bg-blue-500 
+                                        [&::-moz-range-thumb]:border-none
+                                        [&::-moz-range-thumb]:rounded-full 
+                                        [&::-moz-range-thumb]:transition-all
+                                        [&::-moz-range-thumb]:hover:bg-blue-400
+                                        [&::-moz-range-thumb]:hover:scale-110"
+                                        
+                                        oninput="document.getElementById('value-{{ substance.id }}').innerText = this.value + ' unit(s)'">
+                                    
+                                    <div class="mt-2 text-slate-400 font-medium">
+                                        <span id="value-{{ substance.id }}">1 unit(s)</span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Notes</h2>
+                <div class="flex flex-col gap-2">
+                    <label for="notes-textarea" class="text-sm font-medium text-slate-400">Notes/Diary</label>
+                    
+                    <textarea 
+                        id="notes-textarea" 
+                        name="notes" 
+                        rows="4" 
+                        placeholder="How was your day? Any specific triggers or highlights?" 
+                        class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-none"
+                    ></textarea>
+                </div>
+            </div>
+            <button id="save-btn" class="w-full py-4 bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold rounded-2xl shadow-lg shadow-green-500/20 transition-all duration-200 flex items-center justify-center gap-2">Save Entry!</button>
+        </div>
+        <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center p-4 mb-4 w-full max-w-xs text-slate-100 bg-slate-800 rounded-2xl shadow-lg border border-slate-700 transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
+            <div id="toast-icon" class="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl">
+                ✅
+            </div>
+            <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
+        </div>
+        <script>
+            document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
+
+            function toggleMenu() {
+                const menu = document.getElementById("mobile-menu");
+                menu.classList.toggle("hidden");
+            }
+
+
+            function showToast(message, isError = false) {
+                const toast = document.getElementById("toast");
+                const toastMessage = document.getElementById("toast-message");
+                const toastIcon = document.getElementById("toast-icon");
+
+                toastMessage.innerText = message;
+
+                if (isError) {
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-red-500/20 text-red-400 text-xl";
+                    toastIcon.innerHTML = "❌";
                 } else {
-                    menu.style.display = "none";
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl";
+                    toastIcon.innerHTML = "✅"
                 }
-            });
+
+                toast.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
+                toast.classList.add("opacity-100", "translate-y-0")
+
+                setTimeout(() => {
+                    toast.classList.remove("opacity-100", "translate-y-0");
+                    toast.classList.add("opacity-0", "translate-y-4", "pointer-events-none")
+                }, 3000);
+            }
 
             const sliders = ["mood", "energy", "stress", "sleep-time", "work-hours", "alcohol", "sugar", "caffeine", "meds"];
 
-            sliders.forEach(metric => {
-                let slider = document.getElementById(`${metric}`);
-                let display = document.getElementById(`${metric}-value`)
+            function displaySlider(sliderId, valueId, checkboxElement) {
+                let slider = document.getElementById(sliderId);
+                let displayer = document.getElementById(valueId);
 
-                slider.addEventListener("input", function () {
-                    if (metric === "alcohol") {
-                        display.innerText = this.value + " " + "beverages";
-                    } else if (metric === "sugar") {
-                        display.innerText = this.value + " " + "sugary snacks";
-                    } else if (metric === "caffeine") {
-                        display.innerText = this.value + " " + "cups of coffee / tea";
-                    } else if (metric === "meds") {
-                        display.innerText = this.value + " " + "pills";
-                    } else {
-                        display.innerText = this.value
-                    }    
-                })
-            })
-
-            function displaySlider(keyword) {
-                let slider = document.getElementById(`${keyword}`)
-                let displayer = document.getElementById(`${keyword}-value`)
-                if (slider.style.display === "none") {
+                if (checkboxElement.checked) {
                     slider.style.display = "block";
                     displayer.style.display = "block";
                 } else {
                     slider.style.display = "none";
                     displayer.style.display = "none";
+
+                    slider.value = 1;
+                    displayer.innerText = "1 unit(s)";
                 }
             }
+
             document.getElementById("save-btn").addEventListener("click", function (event) {
 
                 event.preventDefault();
@@ -297,12 +429,15 @@
                 }
 
                 checkedSubstances.forEach(function(box) {
-                    let matchingSlider = document.getElementById(box.value);
+                    let sliderId = box.value.replace("container-", "");
+                    let slider = document.getElementById(sliderId)
 
-                    loggedSubstances.push({
-                        id: parseInt(box.dataset.id),
-                        dosage: parseInt(matchingSlider.value)
-                    });
+                    if (slider) {
+                        loggedSubstances.push({
+                            id: parseInt(box.dataset.id),
+                            dosage: parseInt(slider.value)
+                        })
+                    }
                 });
 
                 checkedBoxes.forEach(function(box) {
@@ -337,18 +472,23 @@
                     const data = await response.json();
 
                     if (!response.ok) {
-                        alert(data.message);
-                        window.location.href = "/";
+                        showToast(data.message, true);
                         throw new Error(data.message);
+                        setTimeout(() => {
+                            window.location.href = "/";
+                        }, 1500);
                         
-                    }
+                    };
 
                     return data;
                 })
                 .then(data => {
                     console.log("Success:", data);
-                    alert("Entry saved successfully");
-                    window.location.href = "/";
+                    showToast("Entry saved successfully", false);
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 1500)
+                    
                 })
                 .catch((error) => {
                     console.error("Error:", error)

@@ -2,9 +2,29 @@ import random
 from datetime import datetime, timedelta
 from main import app, db, MoodEntry, User, Activity, Substance, EntrySubstance
 
+PRIMARY_WEIGHTS = [
+    1,
+    5,
+    10,
+    50,
+    25,
+    1,
+    8
+]
+
+SECONDARY_WEIGHTS = [
+    12,
+    10,
+    15,
+    40,
+    15,
+    2,
+    6
+]
+
 def seed_database():
     with app.app_context():
-        print("🌱 Starting the 30-day seeding process...")
+        print("🌱 Starting the 365-day seeding process...")
 
         # 1. Make sure our default user exists
         user = User.query.get(1)
@@ -35,7 +55,7 @@ def seed_database():
         print("📊 Generating 30 days of data...")
 
         # 3. Generate 30 days of data
-        for i in range(30):
+        for i in range(365):
             target_date = datetime.now().replace(hour=20, minute=0, second=0, microsecond=0) - timedelta(days=i)
 
             # --- SLEEP LOGIC ---
@@ -49,13 +69,12 @@ def seed_database():
                 work_hours = random.choice([6, 8, 8, 8, 10])
                 location = random.choice(["work", "work", "home"])
                 social_context = random.choice(["coworkers", "alone"])
-                mood, energy, stress = random.randint(4, 8), random.randint(3, 7), random.randint(5, 9)
+                mood, energy, stress = random.randint(0, 8), random.randint(0, 8), random.randint(5, 10)
             else:
                 work_hours = None
                 location = random.choice(["home", "outdoors", "transit"])
                 social_context = random.choice(["friends", "partner", "family"])
                 mood, energy, stress = random.randint(6, 10), random.randint(6, 10), random.randint(2, 5)
-
             # 4. Create the entry object
             entry = MoodEntry(
                 user_id=1,
@@ -69,8 +88,8 @@ def seed_database():
                 work_hours=work_hours,
                 location=location,
                 social_context=social_context,
-                primary_emotion="neutral",
-                secondary_emotion="neutral"
+                primary_emotion=random.choices(["fear", "anger", "sadness", "neutral", "joy", "disgust", "surprise"], weights=PRIMARY_WEIGHTS, k=1)[0],
+                secondary_emotion=random.choices(["fear", "anger", "sadness", "neutral", "joy", "disgust", "surprise"], weights=SECONDARY_WEIGHTS, k=1)[0]
             )
 
             # --- ADD JUNCTIONS ---
@@ -92,7 +111,7 @@ def seed_database():
             db.session.add(entry)
 
         db.session.commit()
-        print("✅ Successfully injected 30 days of fresh data!")
+        print("✅ Successfully injected 365 days of fresh data!")
 
 if __name__ == "__main__":
     seed_database()

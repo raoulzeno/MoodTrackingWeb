@@ -12,6 +12,7 @@
         <script src="https://unpkg.com/cal-heatmap/dist/cal-heatmap.min.js"></script>
         <script src="https://unpkg.com/@popperjs/core@2"></script>
         <script src="https://unpkg.com/cal-heatmap/dist/plugins/Tooltip.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <link rel="stylesheet" href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css">
         <script>
             tailwind.config = {
@@ -80,14 +81,45 @@
                 <div class="relative h-[350px] w-full">
                 </div>
             </div>
+            <div id="emotion-heatmap" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h3 class="text-xl font-bold mb-6">Emotions Heatmap</h3>
+                <div class="relative h-[350px] w-full" id="emotions-heatmap"></div>
+                <div class="flex justify-center items-center space-x-6 mt-2 text-xs text-slate-400">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded bg-[#0b4f4a] mr-2"></div>
+                        <span>Very Rarely (1-5)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded bg-[#009689] mr-2"></div>
+                        <span>Rarely (6-10)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded bg-[#00d5be] mr-2"></div>
+                        <span>Regularly (11-40)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded bg-[#00d3f2] mr-2"></div>
+                        <span>Dominant (41+)</span>
+                    </div>
+                </div>
+            </div>
             <div id="environments" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="text-xl font-bold mb-6">Environments</h3>
                 <div class="relative h-[400px] w-full">
                     <canvas id="environmentChart"></canvas>
                 </div>
             </div>
-            <div id="activty-substance-table" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
-                <h3 class="text-xl font-bold mb-6">Activity and Substance Table</h3>
+            <div id="activity-substance-table" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full gap-2">
+                <h3 class="text-xl font-bold mb-6">Impact Table</h3>
+                <div class="flex flex-col mb-6">
+                    <label class="text-lg font-bold mb-6">Activities</label>
+                    <div id="activities"></div>
+                </div>
+                <div class="flex flex-col mb-6">
+                    <label class="text-lg font-bold mb-6">Substances</label>
+                    <div id="substances"></div>
+                </div>
+                
             </div>
         </div>
 
@@ -102,6 +134,156 @@
                 month.classList.toggle("hidden")
                 year.classList.toggle("hidden")
 
+            }
+
+            async function loadActivitiesSubstances() {
+                try {
+                    const response = await(fetch("/get-activities-and-substances"));
+                    const data = await response.json();
+
+                    const activityContainer = document.getElementById("activities")
+
+                    data.activities.forEach(act =>{
+                        const activityDiv = document.createElement("div");
+                        const colorClass = act.impact >= 0 ? "text-emerald-400" : "text-rose-400"
+                        activityDiv.className = "flex justify-between border-b border-slate-700 text-m"
+                        activityDiv.innerHTML = `
+                            <span class="text-slate-200">${act.name}</span>
+                            <span class="font-mono ${colorClass}">${act.impact}</span>
+                        `;
+                        activityContainer.appendChild(activityDiv)
+                    })
+
+                    const substanceContainer = document.getElementById("substances")
+
+                    data.substances.forEach(substance => {
+                        const substanceDiv = document.createElement("div");
+                        const colorClass = substance.impact >= 0 ? "text-emerald-400" : "text-rose-400"
+                        substanceDiv.className = "flex justify-between border-b border-slate-700 text-m"
+                        substanceDiv.innerHTML = `
+                            <span class="tesxt-slate-200">${substance.name}</span>
+                            <span class="font-mono ${colorClass}">${substance.impact}</span>
+                        `
+                        substanceContainer.appendChild(substanceDiv)
+                    })
+                } catch {
+                    console.log("Error.")
+                }
+            }
+
+            async function loadEmotionMap() {
+                try {
+                    const response = await(fetch("/get-emotion-data"))
+                    const data = await response.json();
+
+                    if (data.data.length === 0) {
+                        console.log("No emotion data found.")
+                        return;
+                    }
+
+                    const options = {
+                        series : data.data,
+                        legend: {
+                            show: false,
+                        },
+                        grid: {
+                            show: false
+                        },
+                        stroke: {
+                            show: true,
+                            colors: ["#1e293b"],
+                            width: 4
+                        },
+                        chart : {
+                            height: 350,
+                            type: "heatmap",
+                            background: "#1e293b",
+                            foreColor: "#fffffff",
+                            toolbar: {
+                                show: false,
+                            }
+                        },
+                        dataLabels: {
+                            enabled : false,
+                        },
+                        colors: ["#008FFB"],
+                        plotOptions: {
+                            heatmap: {
+                                radius : 10,
+                                enableShades: false,
+                                colorScale: {
+                                    ranges: [{
+                                        from: 0,
+                                        to: 0,
+                                        color: "#1e293b",
+                                        name: "Never",
+                                    },
+                                    {
+                                        from: 1,
+                                        to: 5,
+                                        color: "#0b4f4a",
+                                        name: "Very Rarely (1-5)"
+                                    },
+                                    {
+                                        from: 6,
+                                        to: 10,
+                                        color: "#009689",
+                                        name: "Rarely (6-10)"
+                                    },
+                                    {
+                                        from: 11,
+                                        to: 40,
+                                        color: "#00d5be",
+                                        name: "Regularly (11-40)"
+                                    },
+                                    {
+                                        from: 41,
+                                        to: 365,
+                                        color: "#00d3f2",
+                                        name: "Dominant (41+)"
+                                    }
+                                ],
+                                }
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            fillSeriesColor: false,
+                            hideEmptySeries: true,
+                            theme: "dark"
+                        },
+                        yaxis: {
+                            labels: {
+                                style: {
+                                    colors: "white",
+                                    fontSize: "14"
+                                }
+                            }
+                        },
+                        xaxis: {
+                            axisBorder: {
+                                show: false,
+                            },
+                            axisTicks: {
+                                show: false,
+                            },
+                            labels: {
+                                style: {
+                                    colors: "white",
+                                    fontSize: "14"
+                                }
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        }
+                    };
+
+                    let chart = new ApexCharts(document.getElementById("emotions-heatmap"), options);
+                    chart.render();
+                } catch (error) {
+                    console.log("Something went wrong: ", error)
+                };
             }
 
             async function loadCalMap() {
@@ -153,15 +335,16 @@
                                 type: "day",
                                 width: 14,
                                 height: 14,
-                                radius: 2
+                                radius: 10
                             },
                             data: dataYearOptions,
                             theme: "dark",
                             scale: {
                                 color: {
-                                    type: "quantize",
-                                    range: ['#ff4d4d', '#ff9933', '#ffdb4d', '#a6ff4d', '#4dff4d'],
-                                    domain: [1, 10]
+                                    type: "threshold",
+                                    range: ["#f43f5e", "#fb923c", "#fbbf24", "#34d399", "#0d9488"],
+                                    domain: [4, 6, 8, 9.5],
+                                    empty: "#1e293b"
                                 }
                             }
                         }, TOOLTIP_OPTIONS)
@@ -181,7 +364,7 @@
                         type: "day",
                         width: 16,
                         height: 16,
-                        radius: 2
+                        radius: 10
                     }
 
                     const dataMonthOptions = {
@@ -193,17 +376,19 @@
                     const monthOptions = {
                         itemSelector: document.getElementById("cal-month-heatmap"),
                         range: 2,
+                        theme: "light",
                         date: { start: startMonthDate },
                         domain: domainMonthOptions,
                         subDomain: subDomainMonthOptions,
-                        verticalOrientation: true,
+                        verticalOrientation: false,
                         data: dataMonthOptions,
                         theme: "dark",
                         scale: {
                             color: {
-                                type: "quantize",
-                                range: ['#ff4d4d', '#ff9933', '#ffdb4d', '#a6ff4d', '#4dff4d'],
-                                domain: [1, 10]
+                                type: "threshold",
+                                range: ["#f43f5e", "#fb923c", "#fbbf24", "#34d399", "#0d9488"],
+                                domain: [4, 6, 8, 9.5],
+                                empty: "#1e293b"
                             }
                         }
                     };
@@ -425,6 +610,8 @@
                 loadTrendChart();
                 loadEnvironmentChart();
                 loadCalMap();
+                loadEmotionMap();
+                loadActivitiesSubstances();
             })
         </script>
     </body>

@@ -5,6 +5,7 @@ from sqlalchemy.sql import func
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from weather import get_weather
+from collections import Counter, defaultdict
 
 load_dotenv()
 
@@ -19,6 +20,8 @@ entry_activities = db.Table('entry_activities',
     db.Column('entry_id', db.Integer, db.ForeignKey('mood_entries.id'), primary_key=True),
     db.Column('activity_id', db.Integer, db.ForeignKey('activities.id'), primary_key=True)
 )
+
+CORE_EMOTIONS = ["fear", "anger", "sadness", "neutral", "joy", "disgust", "surprise"]
 
 class User(db.Model):
     __tablename__ = "users"
@@ -409,7 +412,95 @@ def get_cal_data():
     
     return jsonify(data), 200
 
+@app.route("/get-emotion-data", methods=["GET"])
+def get_emotion_data():
+    thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=365)
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp >= thirty_days_ago
+    ).order_by(MoodEntry.timestamp.asc()).all()
 
+    if not entries:
+        return jsonify({
+            "status" : "success",
+            "data" : []
+        }), 200
+    
+    emotion_pairs = [(e.primary_emotion, e.secondary_emotion) for e in entries if e.primary_emotion and e.secondary_emotion]
+
+    pair_counts = Counter(emotion_pairs)
+
+    series_data = []
+
+    for primary in CORE_EMOTIONS:
+        data_points = []
+        for secondary in CORE_EMOTIONS:
+            count = pair_counts.get((primary, secondary), 0)
+
+            data_points.append({
+                "x" : secondary.capitalize(),
+                "y" : count
+            })
+        series_data.append({
+            "name" : primary.capitalize(),
+            "data" : data_points
+        })
+    
+    return jsonify({
+        "status" : "success",
+        "data" : series_data
+    }), 200
+
+@app.route("/get-activities-and-substances", methods=["GET"])
+def get_act_subst():
+    thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp >= thirty_days_ago
+    ).all()
+
+    if not entries: return jsonify({
+        "status" : "success",
+        "activity_obj" : [],
+        "substance_obj" : []
+    }), 200
+
+    moods = [e.mood for e in entries if e.mood]
+    avg_mood_overall = sum(moods) / len(moods)
+
+    activity_map = defaultdict(list)
+    substance_map = defaultdict(list)
+
+    for e in entries:
+        if e.mood is None:
+            continue
+        if e.activities:
+            act_list = [a.name for a in e.activities]
+            for act in act_list:
+                activity_map[act].append(e.mood)
+        
+        if e.substances:
+            sub_list = [s.substance.name for s in e.substances]
+            for sub in sub_list:
+                substance_map[sub].append(e.mood)
+
+    def calculate_influence(data_map):
+        results = []
+        for name, mood_list in data_map.items():
+            avg_with_item = sum(mood_list) / len(mood_list)
+            impact = round(avg_with_item - avg_mood_overall, 2)
+            results.append({
+                "name" : name,
+                "impact" : impact,
+                "count" : len(mood_list)
+            })
+        return sorted(results, key=lambda x: x["impact"], reverse=True)
+
+    return jsonify({
+        "status" : "success",
+        "activities" : calculate_influence(activity_map),
+        "substances" : calculate_influence(substance_map)
+    }), 200
 
 if __name__ == "__main__":
     with app.app_context():

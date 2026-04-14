@@ -383,6 +383,32 @@ def get_env_data():
         "stress": avg_stresses
     }), 200
 
+@app.route("/get-cal-month-data", methods=["GET"])
+def get_cal_data():
+    year_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=365)
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp >= year_ago
+    ).order_by(MoodEntry.timestamp.asc()).all()
+
+    if not entries:
+        return jsonify({
+            "status" : "success",
+            "mood_objs" : []
+        }), 200
+    
+    mood_objs = []
+    for e in entries:
+        obj = { "date": e.timestamp.strftime("%Y-%m-%d"), "value" : e.mood}
+        mood_objs.append(obj)
+
+    data = {
+        "status" : "success",
+        "mood_objs" : mood_objs
+    }
+    
+    return jsonify(data), 200
+
 
 
 if __name__ == "__main__":

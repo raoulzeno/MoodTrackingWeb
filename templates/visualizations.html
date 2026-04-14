@@ -8,6 +8,11 @@
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script src="https://unpkg.com/cal-heatmap/dist/cal-heatmap.min.js"></script>
+        <script src="https://unpkg.com/@popperjs/core@2"></script>
+        <script src="https://unpkg.com/cal-heatmap/dist/plugins/Tooltip.min.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css">
         <script>
             tailwind.config = {
                 theme: {
@@ -48,6 +53,16 @@
             </div>
             <div id="calendar" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="text-xl font-bold mb-6">Calendar</h3>
+                <div id="cal-box" class="flex flex-col items-center gap-5 relative w-full">
+                    <label class="inline-flex items-center cursor-pointer p-3">
+                        <span class="select-none text-sm font-medium text-heading">Last 30 Days</span>
+                        <input id="month-year-toggle" type="checkbox" value="" class="sr-only peer" onchange="toggleYear()">
+                        <div class="relative mx-3 w-9 h-5 bg-slate-900 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-soft dark:peer-focus:ring-brand-soft rounded-full peer peer-checked:after:translate-x-full peer-checkedafter:border-buffer after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
+                        <span class="select-none text-sm font-medium text-heading">Last Year</span>
+                    </label>
+                    <div id="cal-month-heatmap" class=""></div>
+                    <div id="cal-year-heatmap" class="hidden flex flex-wrap gap-4 justify-center"></div>
+                </div>
             </div>
             <div id="trend" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="text-xl font-bold mb-6">Weekly Trends</h3>
@@ -58,13 +73,11 @@
             <div id="sleep-quant-qual" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="text-xl font-bold mb-6">Sleep Quantity and Quality</h3>
                 <div class="relative h-[350px] w-full">
-                    <canvas id="sleepChart"></canvas>
                 </div>
             </div>
             <div id="work-hours-metrics" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="text-xl font-bold mb-6">Work Hours Impact</h3>
                 <div class="relative h-[350px] w-full">
-                    <canvas id="workChart"></canvas>
                 </div>
             </div>
             <div id="environments" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
@@ -80,6 +93,132 @@
 
         <script>
             document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
+
+
+            function toggleYear() {
+                month = document.getElementById("cal-month-heatmap")
+                year = document.getElementById("cal-year-heatmap")
+
+                month.classList.toggle("hidden")
+                year.classList.toggle("hidden")
+
+            }
+
+            async function loadCalMap() {
+                try {
+                    const response = await(fetch("/get-cal-month-data"));
+                    const data = await response.json();
+                    if (data.mood_objs.length === 0) {
+                        console.log("No cal data found.");
+                        return;
+                    }
+
+                    const yearContainer = document.getElementById("cal-year-heatmap");
+                    yearContainer.innerHTML = "";
+
+                    const dataYearOptions = {
+                        source: data.mood_objs,
+                        x: (datum) => new Date(datum.date),
+                        y: "value"
+                    }
+
+                    const TOOLTIP_OPTIONS = [[Tooltip, {text: function (timestamp, value, dayjsDate) {
+                        const moodText = value ? `Mood: ${value}/10` : "No entry";
+
+                        const dateText = dayjsDate.format("MMMM D, YYYY");
+
+                        return `${moodText} on ${dateText}`
+                    }}]]
+
+                    
+                    for (let i=11;i>=0;i--) {
+                        const monthId = `year-month-${i}`;
+                        const monthDiv = document.createElement("div")
+                        monthDiv.id = monthId;
+                        yearContainer.appendChild(monthDiv);
+
+                        const monthStartDate = new Date();
+                        monthStartDate.setMonth(monthStartDate.getMonth() - i);
+
+                        const calYearMonth = new CalHeatmap();
+                        calYearMonth.paint({
+                            itemSelector: `#${monthId}`,
+                            range: 1,
+                            date: { start: monthStartDate },
+                            domain: {
+                                type: "month",
+                                sort: "asc"
+                            },
+                            subDomain: {
+                                type: "day",
+                                width: 14,
+                                height: 14,
+                                radius: 2
+                            },
+                            data: dataYearOptions,
+                            theme: "dark",
+                            scale: {
+                                color: {
+                                    type: "quantize",
+                                    range: ['#ff4d4d', '#ff9933', '#ffdb4d', '#a6ff4d', '#4dff4d'],
+                                    domain: [1, 10]
+                                }
+                            }
+                        }, TOOLTIP_OPTIONS)
+                    }
+                    
+                    const startMonthDate = new Date();
+                    
+                    startMonthDate.setMonth(startMonthDate.getMonth() - 1);
+
+                    const domainMonthOptions = {
+                        type: "month",
+                        dynamicDimension: true,
+                        sort: "asc"
+                    }
+
+                    const subDomainMonthOptions = {
+                        type: "day",
+                        width: 16,
+                        height: 16,
+                        radius: 2
+                    }
+
+                    const dataMonthOptions = {
+                        source: data.mood_objs,
+                        x: (datum) => new Date(datum.date),
+                        y: "value"
+                    }
+
+                    const monthOptions = {
+                        itemSelector: document.getElementById("cal-month-heatmap"),
+                        range: 2,
+                        date: { start: startMonthDate },
+                        domain: domainMonthOptions,
+                        subDomain: subDomainMonthOptions,
+                        verticalOrientation: true,
+                        data: dataMonthOptions,
+                        theme: "dark",
+                        scale: {
+                            color: {
+                                type: "quantize",
+                                range: ['#ff4d4d', '#ff9933', '#ffdb4d', '#a6ff4d', '#4dff4d'],
+                                domain: [1, 10]
+                            }
+                        }
+                    };
+
+                    
+                    const calMonth = new CalHeatmap();
+                    calMonth.paint(monthOptions, TOOLTIP_OPTIONS)
+                    .then(result => {
+                        console.log("Paint finished with options");
+                    });
+
+                } catch (error) {
+                    console.log("An error occured: ", error)
+                };
+            }
 
             async function loadEnvironmentChart() {
                 try {
@@ -164,191 +303,6 @@
                     });
                 } catch (error) {
                     console.error("Error loading environment chart:", error);
-                }
-            }
-
-            async function loadWorkChart() {
-                try {
-                    const response = await fetch("/get-work-data");
-                    const payload = await response.json();
-                    const scatterData = payload.data;
-
-                    if (scatterData.length === 0) {
-                        console.log("No Work data found for Scatter plot")
-                        return;
-                    }
-
-                    const ctx = document.getElementById("workChart").getContext("2d");
-
-                    new Chart(ctx, {
-                        type: "scatter",
-                        data: {
-                            datasets: [{
-                                label: "Work vs. Mood",
-                                data: scatterData,
-                                backgroundColor: "rgba(99, 102, 241, 0.8)",
-                                borderColor: "#4f46e5",
-                                borderWidth: 1,
-                                pointRadius: 7,
-                                pointHoverRadius: 10,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                x: {
-                                    type: 'linear',
-                                    position: 'bottom',
-                                    title: {
-                                        display: true,
-                                        text: 'Hours Worked',
-                                        color: '#94a3b8',
-                                        font: { family: 'Montserrat', size: 14, weight: 'bold' }
-                                    },
-                                    grid: { color: '#334155' },
-                                    ticks: { color: '#94a3b8' }
-                                },
-                                y: {
-                                    min: 0,
-                                    max: 10,
-                                    title: {
-                                        display: true,
-                                        text: 'Mood Level',
-                                        color: '#94a3b8',
-                                        font: { family: 'Montserrat', size: 14, weight: 'bold' }
-                                    },
-                                    grid: { color: '#334155' },
-                                    ticks: { color: '#94a3b8' }
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: "rgba(15, 23, 42, 0.9)",
-                                titleFont: { size: 14, family: "Montserrat" },
-                                bodyFont: { size: 13, family: "Montserrat" },
-                                padding: 12,
-                                cornerRadius: 8,
-                                callbacks: {
-                                    // This replaces the default "X: 8, Y: 5" text
-                                    label: function(context) {
-                                        const date = context.raw.date;
-                                        const hours = context.raw.x;
-                                        const mood = context.raw.y;
-                                        return `${date}: ${hours} hrs worked ➔ Mood: ${mood}`;
-                                    }
-                                }
-                            }
-                        }
-                    });
-                } catch (error) {
-                    console.error("Error loading work scatter chart:", error)
-                }
-            }
-
-            async function loadSleepChart() {
-                try {
-                    const response = await fetch("/get-sleep-data")
-                    const data = await response.json();
-
-                    if (data.labels.length === 0) {
-                        console.log("No data found for the last 7 days.");
-                        return;
-                    }
-
-                    const ctx = document.getElementById("sleepChart").getContext("2d");
-                    const qualityColors = data.sleep_quality.map(quality => {
-                        if (quality === 'good') return 'rgba(16, 185, 129, 0.8)';
-                        if (quality === 'bad') return 'rgba(244, 63, 94, 0.8)';
-                        return 'rgba(148, 163, 184, 0.8)';
-                    });
-
-                    new Chart(ctx, {
-                        data: {
-                            datasets: [{
-                                type: "line",
-                                label: "Mood",
-                                data: data.moods,
-                                borderColor: "#6366f1",
-                                borderWidth: 3,
-                                tension: 0.4
-                            }, {
-                                type: "line",
-                                label: "Energy",
-                                data: data.energies,
-                                borderColor: "#10b981",
-                                borderWidth: 3,
-                                tension: 0.4
-                            }, {
-                                type: "line",
-                                label: "Stress",
-                                data: data.stress,
-                                borderColor: "#f43f5e",
-                                borderWidth: 3,
-                                tension: 0.4
-                            }, {
-                                type: "bar",
-                                label: "Amount of Sleep and Quality",
-                                data: data.sleep_time,
-                                backgroundColor: qualityColors
-                            }],
-                            labels: data.labels
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            interaction: {
-                                mode: "index",
-                                intersect: false,
-                            },
-                            scales: {
-                                y: {
-                                    min: 0,
-                                    max: 15,
-                                    grid: { color: "#334155" },
-                                    ticks: { color: "#94a3b8" }
-                                },
-                                x: {
-                                    grid: { display: false},
-                                    ticks: {color: "#94a3b8", font: { weight: "bold" } }
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    onClick: function(e, legendItem, legend) {
-                                        const chart = legend.chart;
-
-                                        if (legendItem.datasetIndex === 3) {
-                                            return;
-                                        }
-
-                                        if (chart.isDatasetVisible(legendItem.datasetIndex)) {
-                                            chart.hide(legendItem.datasetIndex)
-                                        } else {
-                                            chart.show(legendItem.datasetIndex)
-                                        }
-                                    },
-                                    labels: {
-                                        color: "#f8fafc",
-                                        font: { family: "Montserrat", size: 14},
-                                        usePointStyle: true,
-                                        padding: 20
-                                    }
-                                },
-                                tooltip: {
-                                    backgroundColor: "rgba(15, 23, 42, 0.9)",
-                                    titleFont: { size: 14, family: "Montserrat" },
-                                    bodyFont: { size: 13, family: "Montserrat" },
-                                    padding: 12,
-                                    cornerRadius: 8
-                                }
-                            }
-                        }
-                    });
-                } catch(error) {
-                    console.log("Error fetching data: ", error);
                 }
             }
 
@@ -469,10 +423,8 @@
 
             window.addEventListener("DOMContentLoaded", () =>{
                 loadTrendChart();
-                loadSleepChart();
-                loadWorkChart();
                 loadEnvironmentChart();
-
+                loadCalMap();
             })
         </script>
     </body>

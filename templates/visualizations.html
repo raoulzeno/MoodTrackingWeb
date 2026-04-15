@@ -46,6 +46,7 @@
             <a href="/" class="text-2xl font-bold text-white hover:text-indigo-400">Dashboard</a>
             <a href="/detail" class="text-2xl font-bold text-white hover:text-indigo-400">Detail Log</a>
             <a href="/visualizations" class="text-2xl font-bold text-white hover:text-indigo-400">Visualizations</a>
+            <a href="/notes-feed" class="text-2xl font-bold text-white hover:text-indigo-400">Notes Feed</a>
         </div>
         <hr>
         <div id="visualizations" class="flex flex-col justify-center items-center gap-4">
@@ -74,6 +75,7 @@
             <div id="sleep-quant-qual" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="text-xl font-bold mb-6">Sleep Quantity and Quality</h3>
                 <div class="relative h-[350px] w-full">
+                    <canvas id="sleep-vis"></canvas>
                 </div>
             </div>
             <div id="work-hours-metrics" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
@@ -134,6 +136,106 @@
                 month.classList.toggle("hidden")
                 year.classList.toggle("hidden")
 
+            }
+
+            async function loadSleepViz() {
+                try {
+                    const response = await(fetch("/get-sleep-data"))
+                    const backendData = await response.json();
+
+                    backendData.data.forEach(obj => {
+                        if (obj.label === "GoodQuality") {
+                            obj.label = "Good"
+                            obj.backgroundColor = "#34d399";
+                            obj.borderColor = "#34d399";
+                        } else if (obj.label === "OkayQuality") {
+                            obj.label = "Okay"
+                            obj.backgroundColor = "#fbbf24";
+                            obj.borderColor = "#fbbf24";
+                        } else {
+                            obj.label = "Bad"
+                            obj.backgroundColor = "#f43f5e";
+                            obj.borderColor = "#f43f5e"
+                        }
+                    })
+
+                    const data = {
+                        datasets: backendData.data
+                    }
+
+                    const config = {
+                        type: "scatter",
+                        data: data,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    min: 4,
+                                    max: 10,
+                                    grid: { color: "#334155" },
+                                    ticks: { color: "#94a3b8" },
+                                    title: {
+                                        display: true,
+                                        text: "Average Mood",
+                                        color: "#94a3b8",
+                                        font: {
+                                            size: 14,
+                                            weight: "bold"
+                                        }
+                                    }
+                                },
+                                x: {
+                                    grid: { display: false},
+                                    ticks: {color: "#94a3b8", font: { weight: "bold" } },
+                                    title: {
+                                        display: true,
+                                        text: "Sleep Time (Hours)", 
+                                        color: "#94a3b8",
+                                        font: {
+                                            size: 14,
+                                            weight: "bold"
+                                        }
+                                    }
+                                }
+                            },
+                            x: {
+                                type: "linear",
+                                position: "bottom"
+                            },
+                            elements: {
+                                point: {
+                                    radius: 7
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: "#f8fafc",
+                                        font: { family: "Montserrat", size: 14},
+                                        usePointStyle: true,
+                                        padding: 20
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: "rgba(15, 23, 42, 0.9)",
+                                    titleFont: { size: 14, family: "Montserrat" },
+                                    bodyFont: { size: 13, family: "Montserrat" },
+                                    padding: 12,
+                                    cornerRadius: 8
+                                }
+                            }
+                        }
+                    }
+
+                    const ctx = document.getElementById("sleep-vis")
+
+                    new Chart(ctx, config)
+
+
+                } catch (error) {
+                    console.log("Something went wrong: ", error)
+                }
             }
 
             async function loadActivitiesSubstances() {
@@ -612,6 +714,7 @@
                 loadCalMap();
                 loadEmotionMap();
                 loadActivitiesSubstances();
+                loadSleepViz();
             })
         </script>
     </body>

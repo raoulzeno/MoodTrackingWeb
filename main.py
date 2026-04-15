@@ -95,6 +95,12 @@ def detail_log():
 @app.route("/visualizations")
 def visualization():
     return render_template("visualizations.html")
+
+@app.route("/notes-feed")
+def notes_feed():
+    return render_template("notes-feed.html")
+
+
 @app.route("/get-weather", methods=["GET"])
 def fetch_weather():
     weather_string = get_weather()
@@ -296,36 +302,6 @@ def get_trend_data():
 
     return jsonify(data), 200
 
-@app.route("/get-sleep-data", methods=["GET"])
-def get_sleep_data():
-    seven_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
-
-    entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
-        MoodEntry.timestamp >= seven_days_ago
-    ).order_by(MoodEntry.timestamp.asc()).all()
-
-    if not entries:
-        return jsonify({
-            "labels": [],
-            "sleep_hours": [],
-            "sleepquality": [],
-            "moods": [],
-            "energies": [],
-            "stress": []
-        }), 200
-    
-    data = {
-        "labels": [e.timestamp.strftime("%a") for e in entries],
-        "sleep_time": [e.sleep_time for e in entries],
-        "sleep_quality": [e.sleep_quality for e in entries],
-        "moods": [e.mood for e in entries],
-        "energies": [e.energy for e in entries],
-        "stress": [e.stress for e in entries]
-    }
-
-    return jsonify(data), 200
-
 @app.route("/get-work-data", methods=["GET"])
 def get_work_data():
     thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
@@ -450,6 +426,52 @@ def get_emotion_data():
         "status" : "success",
         "data" : series_data
     }), 200
+
+@app.route("/get-sleep-data", methods=["GET"])
+def get_sleep_data():
+    thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=365)
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp >= thirty_days_ago
+    ).all()
+
+    if not entries: return jsonify({
+        "status": "success",
+        "moods" : [],
+        "sleep-hours": [],
+        "sleep-quality" : []
+    })
+
+    sleep_quality_map = defaultdict(list) # sleep_quality_map = {(hours, quality) : [mood1, mood2]
+
+    for e in entries:
+        sleep_quality_map[(e.sleep_time, e.sleep_quality)].append(e.mood)
+
+    series_data = []
+
+    for quality in ["good", "okay", "bad"]:
+        data_points = []
+        for (sleep_time, sleep_quality), moods in sleep_quality_map.items():
+            if sleep_quality == quality:
+                data_obj = {
+                    "x" : sleep_time,
+                    "y" : sum(moods) / len(moods)
+                }
+                data_points.append(data_obj)
+        series_obj = {
+            "label": quality.capitalize() + "" + "Quality",
+            "data" : data_points
+        }
+
+        series_data.append(series_obj)
+
+
+
+    return jsonify({
+        "status" : "success",
+        "data" : series_data,
+    }), 200
+
 
 @app.route("/get-activities-and-substances", methods=["GET"])
 def get_act_subst():

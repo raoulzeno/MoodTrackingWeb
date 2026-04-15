@@ -59,7 +59,7 @@ def seed_database():
             target_date = datetime.now().replace(hour=20, minute=0, second=0, microsecond=0) - timedelta(days=i)
 
             # --- SLEEP LOGIC ---
-            sleep_hours = round(random.uniform(4.0, 9.5), 1)
+            sleep_hours = round(random.randint(8, 19) , 1)
             quality = "good" if sleep_hours >= 7.5 else "okay" if sleep_hours >= 5.5 else "bad"
 
             # --- ENVIRONMENT & MOOD LOGIC ---
@@ -75,6 +75,7 @@ def seed_database():
                 location = random.choice(["home", "outdoors", "transit"])
                 social_context = random.choice(["friends", "partner", "family"])
                 mood, energy, stress = random.randint(6, 10), random.randint(6, 10), random.randint(2, 5)
+
             # 4. Create the entry object
             entry = MoodEntry(
                 user_id=1,

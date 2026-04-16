@@ -13,6 +13,7 @@
         <script src="https://unpkg.com/@popperjs/core@2"></script>
         <script src="https://unpkg.com/cal-heatmap/dist/plugins/Tooltip.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <link rel="stylesheet" href="https://unpkg.com/cal-heatmap/dist/cal-heatmap.css">
         <script>
             tailwind.config = {
@@ -127,6 +128,10 @@
         </div>
 
         <script>
+            const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqeXlwY2N1aGFncnNqYnhmaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTE1ODUsImV4cCI6MjA5MTkyNzU4NX0.rTmgdc4CBsRWq2FutKGqbB-fh04RGhTkLgQALWhny54"
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
             document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
 
 
@@ -141,7 +146,19 @@
 
             async function loadWorkViz() {
                 try {
-                    const response = await fetch("/get-work-insights");
+
+                    const { data: { session }} = await supabaseClient.auth.getSession();
+
+                    if (!session) {
+                        window.location.href = "/login";
+                        return;
+                    }
+
+                    const response = await fetch("/get-work-insights", {
+                        headers: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    });
                     const backendData = await response.json();
 
                     const colorMap = {
@@ -240,7 +257,20 @@
 
             async function loadSleepViz() {
                 try {
-                    const response = await(fetch("/get-sleep-data"))
+
+                    const { data: {session}} = await supabaseClient.auth.getSession();
+
+                    if (!session) {
+                        window.location.href = "/login";
+                        return;
+                    }
+                    
+                    const response = await fetch("/get-sleep-data", {
+                        headers: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    })
+
                     const backendData = await response.json();
 
                     backendData.data.forEach(obj => {
@@ -340,7 +370,20 @@
 
             async function loadActivitiesSubstances() {
                 try {
-                    const response = await(fetch("/get-activities-and-substances"));
+
+                    const { data: {session}} = await supabaseClient.auth.getSession();
+
+                    if (!session) {
+                        window.location.href = "/login";
+                        return;
+                    }
+
+                    const response = await fetch("/get-activities-and-substances", {
+                        headers: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    });
+
                     const data = await response.json();
 
                     const activityContainer = document.getElementById("activities")
@@ -375,7 +418,19 @@
 
             async function loadEmotionMap() {
                 try {
-                    const response = await(fetch("/get-emotion-data"))
+                    
+                    const { data: {session}} = await supabaseClient.auth.getSession();
+
+                    if (!session) {
+                        window.location.href = "/login";
+                        return;
+                    }
+
+                    const response = await fetch("/get-emotion-data", {
+                        headers: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    })
                     const data = await response.json();
 
                     if (data.data.length === 0) {
@@ -508,7 +563,19 @@
 
             async function loadCalMap() {
                 try {
-                    const response = await(fetch("/get-cal-month-data"));
+
+                    const { data: {session} } = await supabaseClient.auth.getSession();
+
+                    if (!session) {
+                        window.location.href = "/login";
+                        return;
+                    }
+
+                    const response = await fetch("/get-cal-month-data", {
+                        headers: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    });
                     const data = await response.json();
                     if (data.mood_objs.length === 0) {
                         console.log("No cal data found.");
@@ -627,7 +694,19 @@
 
             async function loadEnvironmentChart() {
                 try {
-                    const response = await fetch("/get-environments-data");
+
+                    const {data : { session }} = await supabaseClient.auth.getSession();
+
+                    if (!session) {
+                        window.location.href = "/login";
+                        return;
+                    }
+
+                    const response = await fetch("/get-environments-data", {
+                        headers: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    });
                     const data = await response.json();
 
                     if (data.labels.length === 0) {
@@ -713,7 +792,19 @@
 
             async function loadTrendChart() {
                 try {
-                    const response = await fetch("/get-trend-data");
+
+                    const { data: { session }} = await supabaseClient.auth.getSession();
+
+                    if (!session) {
+                        window.location.href = "/login";
+                        return;
+                    }
+
+                    const response = await fetch("/get-trend-data", {
+                        headers: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    });
                     const data = await response.json();
 
                     if (data.labels.length === 0) {

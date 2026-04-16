@@ -1,4 +1,7 @@
 import os
+import uuid
+import jwt
+from functools import wraps
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
@@ -25,13 +28,13 @@ CORE_EMOTIONS = ["fear", "anger", "sadness", "neutral", "joy", "disgust", "surpr
 
 class User(db.Model):
     __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True)
     username = db.Column(db.String(50), nullable=False)
 
 class MoodEntry(db.Model):
     __tablename__ = "mood_entries"
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now())
 
     mood = db.Column(db.Integer, nullable=False)
@@ -64,14 +67,14 @@ class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=True)
 
 class Substance(db.Model):
     __tablename__ = "substances"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=True)
 
 class EntrySubstance(db.Model):
     __tablename__ = "entry_substances"
@@ -82,9 +85,34 @@ class EntrySubstance(db.Model):
 
     substance = db.relationship("Substance")
 
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if "Authorization" in request.headers:
+            parts = request.headers["Authorization"].split()
+            if len(parts) == 2:
+                token = parts[1]
+        if not token:
+            return jsonify({"status" : "error", "message": "Authentication token is missing"}), 401
+
+        try:
+            secret = os.getenv("SUPABASE_JWT_SECRET")
+            data = jwt.decode(token, secret, algorithms=["HS256"], audience="authenticated")
+            current_user_id = data["sub"]
+        except Exception as e:
+            print(f"\n JWT REJECTION CAUSE: {str(e)}\n")
+            return jsonify({"status" : "error", "message" : "Invalid token"}), 401
+        return f(current_user_id, *args, **kwargs)
+    return decorated
+
 @app.route("/")
 def home():
     return render_template("index.html")
+
+@app.route("/login")
+def login_page():
+    return render_template("login.html")
 
 @app.route("/detail")
 def detail_log():
@@ -115,13 +143,14 @@ def fetch_weather():
     }), 200
 
 @app.route("/save-quick-log", methods=["POST"])
-def save_quick_log():
+@token_required
+def save_quick_log(current_user_id):
     data = request.get_json()
 
     start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     existing_entry = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= start_of_today
     ).first()
 
@@ -145,12 +174,13 @@ def save_quick_log():
     return jsonify({"status" : "success", "message" : "Entry saved."}), 200
 
 @app.route("/save-detail-log", methods=["POST"])
-def save_detail_log():
+@token_required
+def save_detail_log(current_user_id):
     data = request.get_json()
     start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
     existing_entry = MoodEntry.query.filter(
-        MoodEntry.user_id ==1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= start_of_today
     ).first()
 
@@ -206,11 +236,12 @@ def save_detail_log():
     return jsonify({"status": "success", "message" : "Entry saved."}), 200
 
 @app.route("/delete-entry", methods=["DELETE"])
-def delete_entry():
+@token_required
+def delete_entry(current_user_id):
     start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     end_of_today = datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)
     entry_to_delete = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp.between(start_of_today, end_of_today)
     ).first()
 
@@ -226,10 +257,11 @@ def delete_entry():
     return jsonify({"status": "success", "message": "Entry deleted."}), 200
 
 @app.route("/get-quicklog-values", methods=["GET"])
-def get_quicklog_values():
+@token_required
+def get_quicklog_values(current_user_id):
     start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     entry = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= start_of_today
     ).first()
 
@@ -248,9 +280,10 @@ def get_quicklog_values():
     }), 200
 
 @app.route("/get-notes-data", methods=["GET"])
-def get_notes_data():
+@token_required 
+def get_notes_data(current_user_id):
     entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.notes.isnot(None)
     ).order_by(MoodEntry.timestamp.desc()).limit(20).all()
 
@@ -274,7 +307,8 @@ def get_notes_data():
 
 
 @app.route("/get-averages", methods=["GET"])
-def get_weekly_averages():
+@token_required
+def get_weekly_averages(current_user_id):
     start_of_time = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
     end_of_time = datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)
 
@@ -283,7 +317,7 @@ def get_weekly_averages():
         func.avg(MoodEntry.energy).label("avg_energy"),
         func.avg(MoodEntry.stress).label("avg_stress")
     ).filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp.between(start_of_time, end_of_time)
     ).first()
 
@@ -303,11 +337,12 @@ def get_weekly_averages():
     }), 200
 
 @app.route("/get-trend-data", methods=["GET"])
-def get_trend_data():
+@token_required
+def get_trend_data(current_user_id):
     seven_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
 
     entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= seven_days_ago
     ).order_by(MoodEntry.timestamp.asc()).all()
 
@@ -329,11 +364,12 @@ def get_trend_data():
     return jsonify(data), 200
 
 @app.route("/get-work-data", methods=["GET"])
-def get_work_data():
+@token_required
+def get_work_data(current_user_id):
     thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
 
     entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= thirty_days_ago
     ).order_by(MoodEntry.timestamp.asc()).all()
 
@@ -347,10 +383,11 @@ def get_work_data():
     return jsonify({"data": scatter_data}), 200
 
 @app.route("/get-environments-data", methods=["GET"])
-def get_env_data():
+@token_required
+def get_env_data(current_user_id):
     thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
     entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= thirty_days_ago
     ).all()
 
@@ -389,10 +426,11 @@ def get_env_data():
     }), 200
 
 @app.route("/get-cal-month-data", methods=["GET"])
-def get_cal_data():
+@token_required
+def get_cal_data(current_user_id):
     year_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=365)
     entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= year_ago
     ).order_by(MoodEntry.timestamp.asc()).all()
 
@@ -415,10 +453,11 @@ def get_cal_data():
     return jsonify(data), 200
 
 @app.route("/get-emotion-data", methods=["GET"])
-def get_emotion_data():
+@token_required
+def get_emotion_data(current_user_id):
     thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=365)
     entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= thirty_days_ago
     ).order_by(MoodEntry.timestamp.asc()).all()
 
@@ -454,10 +493,11 @@ def get_emotion_data():
     }), 200
 
 @app.route("/get-sleep-data", methods=["GET"])
-def get_sleep_data():
+@token_required
+def get_sleep_data(current_user_id):
     thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=365)
     entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= thirty_days_ago
     ).all()
 
@@ -499,10 +539,11 @@ def get_sleep_data():
     }), 200
 
 @app.route("/get-work-insights", methods=["GET"])
-def get_work_insights():
+@token_required
+def get_work_insights(current_user_id):
     thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
     entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= thirty_days_ago,
         MoodEntry.work_hours.isnot(None)
     ).all()
@@ -603,10 +644,11 @@ def get_work_insights():
 
 
 @app.route("/get-activities-and-substances", methods=["GET"])
-def get_act_subst():
+@token_required
+def get_act_subst(current_user_id):
     thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
     entries = MoodEntry.query.filter(
-        MoodEntry.user_id == 1,
+        MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= thirty_days_ago
     ).all()
 
@@ -657,8 +699,8 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
 
-        if not User.query.get(1):
-            dummy = User(username="Admin")
+        if not User.query.get("test-admin-uuid-123"):
+            dummy = User(id="test-admin-uuid-123", username="Admin")
             db.session.add(dummy)
             db.session.commit()
     

@@ -7,6 +7,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <script>
             tailwind.config = {
                 theme: {
@@ -52,6 +53,10 @@
             </div>
         </div>
         <script>
+            const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqeXlwY2N1aGFncnNqYnhmaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTE1ODUsImV4cCI6MjA5MTkyNzU4NX0.rTmgdc4CBsRWq2FutKGqbB-fh04RGhTkLgQALWhny54"
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
             function toggleMenu() {
                 const menu = document.getElementById("mobile-menu");
                 menu.classList.toggle("hidden");
@@ -59,7 +64,19 @@
 
             async function getNotes() {
                 try {
-                    const response = await fetch("/get-notes-data");
+
+                    const {data: {session}} = await supabaseClient.auth.getSession();
+
+                    if (!session) {
+                        window.location.href = "/login";
+                        return;
+                    }
+
+                    const response = await fetch("/get-notes-data", {
+                        headers: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    });
                     const backendData = await response.json();
                     const container = document.getElementById("notes-container");
                     if (backendData.data.length === 0) {

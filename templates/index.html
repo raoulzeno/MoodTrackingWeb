@@ -7,6 +7,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <script>
             tailwind.config = {
                 theme: {
@@ -121,6 +122,10 @@
             <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
         </div>
         <script>
+            const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqeXlwY2N1aGFncnNqYnhmaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTE1ODUsImV4cCI6MjA5MTkyNzU4NX0.rTmgdc4CBsRWq2FutKGqbB-fh04RGhTkLgQALWhny54"
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
             document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
 
             function showToast(message, isError = false) {
@@ -174,7 +179,15 @@
                 showView("quick-log-stress");
             }
 
-            function setStress(value) {
+            async function setStress(value) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    showToast("You must be logged in to save a log.", true)
+                    return;
+                }
+
+
                 quickStress = value;
                 const payload = {
                     mood: quickMood,
@@ -185,7 +198,8 @@
                 fetch("/save-quick-log", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session.access_token}`
                     },
                     body: JSON.stringify(payload)
                 })
@@ -216,9 +230,19 @@
                 });
             }
 
-            function getAverages () {
+            async function getAverages () {
+                const { data: { session }} = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    window.location.href = "/login";
+                    return;    
+                }
+
                 fetch("/get-averages", {
-                    method: "GET"
+                    method: "GET",
+                    headers: {
+                        "Authorization" : `Bearer ${session.access_token}`
+                    }
                 })
                 .then(async response => {
                     const data = await response.json();
@@ -238,9 +262,19 @@
                 });
             };
 
-            function getWeather() {
+            async function getWeather() {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    window.location.href = "/login";
+                    return;
+
+                }
                 fetch("/get-weather", {
-                    method: "GET"
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${session.access_token}`
+                    }
                 })
                 .then(async response => {
                     const data = await response.json();
@@ -299,13 +333,23 @@
                 }, 1000)
             }
 
-            function deleteEntry(buttonElement) {
+            async function deleteEntry(buttonElement) {
+                const { data: { session }} = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    window.location.href = "/login";
+                    return;
+                }
+
                 buttonElement.innerText = "Deleting...";
 
                 clearInterval(deleteTimer)
 
                 fetch("/delete-entry", {
-                    method: "DELETE"
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${session.access_token}`
+                    }
                 })
                 .then(async response => {
                     const data = await response.json();

@@ -7,6 +7,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <script>
             tailwind.config = {
                 theme: {
@@ -357,6 +358,10 @@
             <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
         </div>
         <script>
+            const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqeXlwY2N1aGFncnNqYnhmaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTE1ODUsImV4cCI6MjA5MTkyNzU4NX0.rTmgdc4CBsRWq2FutKGqbB-fh04RGhTkLgQALWhny54"
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
             document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
 
             function toggleMenu() {
@@ -407,9 +412,16 @@
                 }
             }
 
-            document.getElementById("save-btn").addEventListener("click", function (event) {
+            document.getElementById("save-btn").addEventListener("click", async function (event) {
 
                 event.preventDefault();
+
+                const { data: { session }} = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    window.location.href = "/login";
+                    return;
+                }
 
                 let sleepQuality = document.querySelector("input[name='sleep_quality']:checked").value;
                 let primaryEmotion = document.querySelector("input[name='primary-emotion']:checked").value;
@@ -466,7 +478,10 @@
 
                 fetch("/save-detail-log", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session.access_token}`
+                    },
                     body: JSON.stringify(payload)
                 })
                 .then(async response => {
@@ -496,8 +511,19 @@
                 })
             })
 
-            function getQuickLogValues() {
-                fetch("/get-quicklog-values")
+            async function getQuickLogValues() {
+                const { data: { session }} = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    window.location.href = "/login";
+                    return;
+                }
+
+                fetch("/get-quicklog-values", {
+                    headers: {
+                        "Authorization": `Bearer ${session.access_token}`
+                    }
+                })
                 .then(response => {
                     if (!response.ok) throw new Error("Something went wrong...");
                     return response.json();
@@ -516,9 +542,19 @@
                 });
             }
 
-            function getWeather() {
+            async function getWeather() {
+                const { data : { session }} = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    window.location.href = "/login";
+                    return;
+                }
+
                 fetch("/get-weather", {
-                    method: "GET"
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${session.access_token}`
+                    }
                 })
                 .then(async response => {
                     const data = await response.json();

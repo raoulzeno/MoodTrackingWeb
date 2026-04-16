@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script>
+            tailwind.config = {
+                theme: { extend: { fontFamily: { sans: ['Montserrat', 'sans-serif'] } } }
+            }
+        </script>
+        <title>Login - MoodTracker</title>
+    </head>
+    <body class="bg-slate-900 text-slate-100 font-sans h-screen flex flex-col items-center justify-center p-4">
+
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold mb-2">Mood Tracker</h1>
+            <p class="text-slate-400 text-sm tracking-widest uppercase font-semibold">Authentication</p>
+        </div>
+
+        <div class="bg-slate-800/50 p-8 rounded-xl border border-slate-700/50 backdrop-blur-sm w-full max-w-md shadow-xl">
+            <div class="flex flex-col gap-4">
+                
+                <div id="auth-error" class="hidden bg-rose-500/10 text-rose-400 border border-rose-500/20 text-sm p-3 rounded-md text-center">
+                    Error message goes here.
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-400 mb-1">Email</label>
+                    <input type="email" id="email" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="you@email.com">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-400 mb-1">Password</label>
+                    <input type="password" id="password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="••••••••">
+                </div>
+
+                <button onclick="handleLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg transition-colors mt-2">
+                    Sign In
+                </button>
+
+                <div class="text-center mt-2">
+                    <span class="text-slate-500 text-sm">Don't have an account?</span>
+                    <button onclick="handleSignUp()" class="text-indigo-400 hover:text-indigo-300 text-sm font-bold ml-1 transition-colors">
+                        Sign Up
+                    </button>
+                </div>
+
+            </div>
+        </div>
+        <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center p-4 mb-4 w-full max-w-xs text-slate-100 bg-slate-800 rounded-2xl shadow-lg border border-slate-700 transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
+            <div id="toast-icon" class="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl">
+                ✅
+            </div>
+            <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
+        </div>
+        <script>
+            const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqeXlwY2N1aGFncnNqYnhmaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTE1ODUsImV4cCI6MjA5MTkyNzU4NX0.rTmgdc4CBsRWq2FutKGqbB-fh04RGhTkLgQALWhny54"
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+            function showToast(message, isError = false) {
+                const toast = document.getElementById("toast");
+                const toastMessage = document.getElementById("toast-message");
+                const toastIcon = document.getElementById("toast-icon");
+
+                toastMessage.innerText = message;
+
+                if (isError) {
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-red-500/20 text-red-400 text-xl";
+                    toastIcon.innerHTML = "❌";
+                } else {
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl";
+                    toastIcon.innerHTML = "✅"
+                }
+
+                toast.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
+                toast.classList.add("opacity-100", "translate-y-0")
+
+                setTimeout(() => {
+                    toast.classList.remove("opacity-100", "translate-y-0");
+                    toast.classList.add("opacity-0", "translate-y-4", "pointer-events-none")
+                }, 3000);
+            }
+
+
+            function showError(message) {
+                const errorDiv = document.getElementById("auth-error");
+                errorDiv.innerText = message;
+                errorDiv.classList.remove("hidden");
+            }
+
+            async function handleLogin() {
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+
+                if (!email || !password) return showError("Please enter both email and password.");
+
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) {
+                    showError(error.message)
+                } else {
+                    window.location.href = "/";
+                }
+            }
+
+            async function handleSignUp() {
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+
+                if (!email || !password) return showError("Please enter both email and password.")
+
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) {
+                    showError(error.message)
+                } else {
+                    showToast("Account created successfully! You can now sign in.", false)
+                }
+            }
+        </script>
+    </body>
+</html>

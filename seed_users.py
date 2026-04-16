@@ -59,17 +59,22 @@ def seed_database():
             target_date = datetime.now().replace(hour=20, minute=0, second=0, microsecond=0) - timedelta(days=i)
 
             # --- SLEEP LOGIC ---
-            sleep_hours = round(random.randint(8, 19) , 1)
+            sleep_hours = round(random.randint(8, 19) / 2 , 1)
             quality = "good" if sleep_hours >= 7.5 else "okay" if sleep_hours >= 5.5 else "bad"
 
             # --- ENVIRONMENT & MOOD LOGIC ---
             is_workday = random.choice([True, True, True, True, True, False, False]) 
             
             if is_workday:
-                work_hours = random.choice([6, 8, 8, 8, 10])
+                work_hours = random.choice([2, 6, 8, 10, 12])
                 location = random.choice(["work", "work", "home"])
                 social_context = random.choice(["coworkers", "alone"])
-                mood, energy, stress = random.randint(0, 8), random.randint(0, 8), random.randint(5, 10)
+                if work_hours <= 6:
+                    mood, energy, stress = random.randint(5, 8), random.randint(0, 8), random.randint(4, 6)
+                elif 6 < work_hours <= 9:
+                    mood, energy, stress = random.randint(3, 6), random.randint(5, 8), random.randint(6, 8)
+                elif work_hours > 9:
+                    mood, energy, stress = random.randint(2, 4), random.randint(9, 10), random.randint(9, 10)
             else:
                 work_hours = None
                 location = random.choice(["home", "outdoors", "transit"])

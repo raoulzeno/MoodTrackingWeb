@@ -73,7 +73,7 @@
                 </div>
             </div>
             <div id="sleep-quant-qual" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
-                <h3 class="text-xl font-bold mb-6">Sleep Quantity and Quality</h3>
+                <h3 class="text-xl font-bold mb-6">Sleep Quantity and Mood</h3>
                 <div class="relative h-[350px] w-full">
                     <canvas id="sleep-vis"></canvas>
                 </div>
@@ -81,10 +81,11 @@
             <div id="work-hours-metrics" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h3 class="text-xl font-bold mb-6">Work Hours Impact</h3>
                 <div class="relative h-[350px] w-full">
+                    <canvas id="work-vis"></canvas>
                 </div>
             </div>
             <div id="emotion-heatmap" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
-                <h3 class="text-xl font-bold mb-6">Emotions Heatmap</h3>
+                <h3 class="text-xl font-bold mb-6">Emotional Correlations</h3>
                 <div class="relative h-[350px] w-full" id="emotions-heatmap"></div>
                 <div class="flex justify-center items-center space-x-6 mt-2 text-xs text-slate-400">
                     <div class="flex items-center">
@@ -136,6 +137,105 @@
                 month.classList.toggle("hidden")
                 year.classList.toggle("hidden")
 
+            }
+
+            async function loadWorkViz() {
+                try {
+                    const response = await fetch("/get-work-insights");
+                    const backendData = await response.json();
+
+                    const colorMap = {
+                        "Mood": "rgba(99, 102, 241, 1)",
+                        "Energy" : "rgba(16, 185, 129, 1)",
+                        "Stress" : "rgba(244, 63, 94, 1)"
+                    }
+
+                    if (typeof backendData.insights === "string") {
+                        const container = document.getElementById("work-vis").parentElement;
+                        container.innerHTML = `<p class="text-slate-400 italic text-sm text-center py-10">${backendData.insights}</p>`
+                        return;
+                    }
+                    const metricsContainer = document.getElementById("work-hours-metrics");
+                    const insightHTML = `
+                        <div class="mb-4 text-sm bg-slate-900/50 p-4 rounded-lg">
+                            <p class="text-indigo-400 mb-1">💡 <span class="text-slate-200">${backendData.insights.mood}</span></p>
+                            <p class="text-emerald-400 mb-1">⚡ <span class="text-slate-200">${backendData.insights.energy}</span></p>
+                            <p class="text-rose-400">🛡️ <span class="text-slate-200">${backendData.insights.stress}</span></p>
+                        </div>
+                    `;
+                    metricsContainer.querySelector("h3").insertAdjacentHTML("afterend", insightHTML)
+
+                    backendData.data.datasets.forEach(dataset => {
+                        const themeColor = colorMap[dataset.label];
+
+                        dataset.backgroundColor = themeColor;
+
+                        dataset.borderColor = themeColor.replace("0.8", "1");
+                        dataset.borderWidth = 1;
+                        dataset.borderRadius = 4
+                    })
+
+                    const config = {
+                        type: "bar",
+                        data: backendData.data,
+                        options: {
+                            scales: {
+                                y: {
+                                    grid: { color: "#334155" },
+                                    ticks: { color: "#94a3b8" },
+                                    title: {
+                                        display: true,
+                                        text: "Average Score",
+                                        color: "#94a3b8",
+                                        font: {
+                                            size: 14,
+                                            weight: "bold"
+                                        }
+                                    }
+                                },
+                                x: {
+                                    grid: { display: false},
+                                    ticks: {color: "#94a3b8", font: { weight: "bold" } },
+                                    title: {
+                                        display: true,
+                                        text: "Work Hours", 
+                                        color: "#94a3b8",
+                                        font: {
+                                            size: 14,
+                                            weight: "bold"
+                                        }
+                                    }
+                                }
+                            },
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: "#f8fafc",
+                                        font: { family: "Montserrat", size: 14},
+                                        usePointStyle: true,
+                                        padding: 20
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: "rgba(15, 23, 42, 0.9)",
+                                    titleFont: { size: 14, family: "Montserrat" },
+                                    bodyFont: { size: 13, family: "Montserrat" },
+                                    padding: 12,
+                                    cornerRadius: 8
+                                }
+                            }
+                        }
+                    }
+
+                    const ctx = document.getElementById("work-vis")
+
+                    new Chart(ctx, config)
+
+                } catch (error) {
+                    console.log("Something went wrong: ", error)
+                }
             }
 
             async function loadSleepViz() {
@@ -360,6 +460,15 @@
                                     colors: "white",
                                     fontSize: "14"
                                 }
+                            },
+                            title: {
+                                text: "Primary Emotion",
+                                style: {
+                                    color: "#f8fafc",
+                                    fontFamily: "Montserrat",
+                                    fontWeight: "semi-bold",
+                                    fontSize: 14
+                                }
                             }
                         },
                         xaxis: {
@@ -377,6 +486,15 @@
                             },
                             tooltip: {
                                 enabled: false
+                            },
+                            title: {
+                                text: "Secondary Emotion",
+                                style: {
+                                    color: "#f8fafc",
+                                    fontFamily: "Montserrat",
+                                    fontWeight: "semi-bold",
+                                    fontSize: 14
+                                }
                             }
                         }
                     };
@@ -644,10 +762,19 @@
                             },
                             scales: {
                                 y: {
-                                    min: 0,
-                                    max: 10,
+                                    min: -1,
+                                    max: 11,
                                     grid: { color: "#334155" },
-                                    ticks: { color: "#94a3b8" }
+                                    ticks: { color: "#94a3b8" },
+                                    title: {
+                                        display: true,
+                                        text: "Score",
+                                        color: "#94a3b8",
+                                        font: {
+                                            size: 14,
+                                            weight: "bold"
+                                        }
+                                    }
                                 },
                                 x: {
                                     grid: { display: false},
@@ -715,6 +842,7 @@
                 loadEmotionMap();
                 loadActivitiesSubstances();
                 loadSleepViz();
+                loadWorkViz();
             })
         </script>
     </body>

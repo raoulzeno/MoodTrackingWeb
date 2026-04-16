@@ -247,6 +247,32 @@ def get_quicklog_values():
         "stress_value" : entry.stress
     }), 200
 
+@app.route("/get-notes-data", methods=["GET"])
+def get_notes_data():
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.notes.isnot(None)
+    ).order_by(MoodEntry.timestamp.desc()).limit(20).all()
+
+    if not entries: return jsonify({
+        "status" : "success",
+        "data" : {}
+    }), 200
+
+    data_list = [{
+        "date": e.timestamp.strftime("%b %d, %Y"),
+        "mood": e.mood,
+        "energy": e.energy,
+        "stress": e.stress,
+        "note": e.notes
+    } for e in entries]
+    return jsonify({
+        "status" : "success",
+        "data" : data_list
+    }), 200
+    
+
+
 @app.route("/get-averages", methods=["GET"])
 def get_weekly_averages():
     start_of_time = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=6)
@@ -470,6 +496,109 @@ def get_sleep_data():
     return jsonify({
         "status" : "success",
         "data" : series_data,
+    }), 200
+
+@app.route("/get-work-insights", methods=["GET"])
+def get_work_insights():
+    thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == 1,
+        MoodEntry.timestamp >= thirty_days_ago,
+        MoodEntry.work_hours.isnot(None)
+    ).all()
+
+    if not entries: return jsonify({
+        "status" : "success",
+        "data" : {},
+        "insights": "No insights to date."
+    }), 200
+
+
+    mood_buckets = {"light" : [], "optimal" : [], "heavy" : []}
+    energy_buckets = {"light" : [], "optimal" : [], "heavy" : []}
+    stress_buckets = {"light" : [], "optimal" : [], "heavy" : []}
+
+    for e in entries:
+        if e.work_hours < 6:
+            mood_buckets["light"].append(e.mood)
+            energy_buckets["light"].append(e.energy)
+            stress_buckets["light"].append(e.stress)
+        elif 6 <= e.work_hours < 9:
+            mood_buckets["optimal"].append(e.mood)
+            energy_buckets["optimal"].append(e.energy)
+            stress_buckets["optimal"].append(e.stress)
+        else:
+            mood_buckets["heavy"].append(e.mood)
+            energy_buckets["heavy"].append(e.energy)
+            stress_buckets["heavy"].append(e.stress)
+
+    def safe_avg(lst):
+        return sum(lst) / len(lst) if len(lst) > 0 else 0
+
+    avg_moods = {k: safe_avg(v) for k, v in mood_buckets.items()}
+    avg_energies = {k: safe_avg(v) for k, v in energy_buckets.items()}
+    avg_stresses = {k: safe_avg(v) for k, v in stress_buckets.items()}
+
+    valid_moods = {k: v for k,v in avg_moods.items() if v > 0}
+    valid_energies = {k: v for k,v in avg_energies.items() if v > 0}
+    valid_stresses = {k: v for k,v in avg_stresses.items() if v > 0}
+
+    max_mood = max(valid_moods.values()) if valid_moods else 0
+    max_energy = max(valid_energies.values()) if valid_energies else 0
+    min_stress = min(valid_stresses.values()) if valid_stresses else 0
+
+    best_mood_loads = [k for k, v in valid_moods.items() if v == max_mood]
+    best_energy_loads = [k for k, v in valid_energies.items() if v == max_energy]
+    best_stress_loads = [k for k, v in valid_stresses.items() if v == min_stress] 
+
+    def create_insights(loads, logged):
+        logged_map = {
+            "mood" : "best",
+            "energy" : "most energetic",
+            "stress" : "least stressed"
+        }
+
+        worked_map = {
+            "light" : "less than 6 hours",
+            "optimal" : "between 6 and 9 hours",
+            "heavy" : "more than 9 hours"
+        }
+        if len(loads) == 1:
+            value = loads[0]
+            insight = f"You feel {logged_map[logged]} when working {worked_map[value]}."
+            return insight
+        
+        elif len(loads) == 2:
+            insight = f"You feel {logged_map[logged]} when working either {worked_map[loads[0]]} or {worked_map[loads[1]]}."
+            return insight
+        
+        else:
+            return f"You don't seem to have a preference in terms of {logged}."
+
+    insights = {
+        "mood" : create_insights(best_mood_loads, "mood"),
+        "energy" : create_insights(best_energy_loads, "energy"),
+        "stress" : create_insights(best_stress_loads, "stress")
+    }
+
+    data = {
+        "labels" : ["< 6 hours", "6 to 9 hours", "9+ hours"],
+        "datasets" : [{
+            "label" : "Mood", 
+            "data" : [avg_moods["light"], avg_moods["optimal"], avg_moods["heavy"]]
+        }, {
+            "label" : "Energy",
+            "data" : [avg_energies["light"], avg_energies["optimal"], avg_energies["heavy"]]
+        }, {
+            "label" : "Stress",
+            "data" : [avg_stresses["light"], avg_stresses["optimal"], avg_stresses["heavy"]]
+        }]
+    }
+
+    return jsonify({
+        "status" : "success",
+        "data" : data,
+        "insights" : insights
     }), 200
 
 

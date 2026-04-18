@@ -1,8 +1,8 @@
 import os
 import uuid
-import jwt
 from functools import wraps
 from flask import Flask, render_template, request, jsonify
+from supabase import create_client, Client
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from datetime import datetime, timedelta
@@ -11,6 +11,9 @@ from weather import get_weather
 from collections import Counter, defaultdict
 
 load_dotenv()
+supabase_url = os.getenv("SUPABASE_URL")
+supabase_key = os.getenv("SUPABASE_SECRET_KEY")
+supabase: Client = create_client(supabase_url, supabase_key)
 
 app = Flask(__name__)
 
@@ -97,11 +100,11 @@ def token_required(f):
             return jsonify({"status" : "error", "message": "Authentication token is missing"}), 401
 
         try:
-            secret = os.getenv("SUPABASE_JWT_SECRET")
-            data = jwt.decode(token, secret, algorithms=["HS256"], audience="authenticated")
-            current_user_id = data["sub"]
+            user_response = supabase.auth.get_user(token)
+            current_user_id = user_response.user.id
+
         except Exception as e:
-            print(f"\n JWT REJECTION CAUSE: {str(e)}\n")
+            print(f"\n SUPABASE REJECTION CAUSE: {str(e)}\n")
             return jsonify({"status" : "error", "message" : "Invalid token"}), 401
         return f(current_user_id, *args, **kwargs)
     return decorated
@@ -161,7 +164,7 @@ def save_quick_log(current_user_id):
         }), 400
 
     new_entry = MoodEntry(
-        user_id=1,
+        user_id=current_user_id,
         entry_type="quick",
         mood=data["mood"],
         energy=data["energy"],
@@ -193,7 +196,7 @@ def save_detail_log(current_user_id):
             db.session.flush()
 
     new_entry = MoodEntry(
-        user_id=1,
+        user_id=current_user_id,
         entry_type="detailed",
         mood=data["mood"],
         energy=data["energy"],
@@ -704,4 +707,4 @@ if __name__ == "__main__":
             db.session.add(dummy)
             db.session.commit()
     
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

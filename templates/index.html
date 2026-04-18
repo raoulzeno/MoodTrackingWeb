@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -13,7 +13,6 @@
                 theme: {
                 extend: {
                     fontFamily: {
-                    // This tells Tailwind to replace its default "sans" font with our new Inter font
                     sans: ['Montserrat', 'sans-serif'],
                     }
                 }
@@ -22,8 +21,8 @@
             </script>
         <title>Mood Tracker</title>
     </head>
-    <body class="bg-slate-900 text-slate-100 font-sans p-4 pt-1">
-        <nav class="flex items-center justify-between p-5 w-full bg-transparent relative top-0">
+    <body class="bg-slate-900 text-slate-100 font-sans p-3">
+        <nav class="flex p-4 items-center justify-between p-3 w-full bg-transparent relative top-0">
             <button id="hamburger-btn" class="flex flex-col gap-1.5 focus:outline-none top-0">
                 <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
                 <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
@@ -34,37 +33,41 @@
 
             <div class="w-6"></div>
         </nav>
-        <div id="mobile-menu" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center gap-8">
+        <div id="mobile-menu" class="hidden fixed inset-0 pt-3 bg-slate-950/95 z-50 flex flex-col items-center justify-center gap-8">
             <button onclick="toggleMenu()" class="absolute top-6 left-6 text-white text-3xl">&times;</button>
 
-            <a href="/" class="text-2xl font-bold text-white hover:text-indigo-400">Dashboard</a>
+            <a href="/" class="text-xl pt-3font-bold text-white hover:text-indigo-400">Dashboard</a>
             <a href="/detail" class="text-2xl font-bold text-white hover:text-indigo-400">Detail Log</a>
             <a href="/visualizations" class="text-2xl font-bold text-white hover:text-indigo-400">Visualizations</a>
             <a href="/notes-feed" class="text-2xl font-bold text-white hover:text-indigo-400">Notes Feed</a>
+
+            <button onclick="handleLogout()" class="text-2xl font-bold text-rose-500 hover:text-rose-400 mt-8">Log Out</button>
         </div>
         <hr>
-        <div id="dashboard-view" class="flex flex-col justify-center items-center gap-4">
+        <div id="dashboard-view" class="h-[100dvh] grid grid-rows-5 items-center w-full">
             <div class="self-start">
-                <h2 class="text-2xl font-bold pt-5">Dashboard</h2>
-                <h4 class="text-slate-400 text-md" name="Raoul">Welcome back, Raoul!</h4>
+                <h2 class="text-2xl font-bold">Dashboard</h2>
+                <h4 class="text-slate-400 text-md pb-2" name="Raoul">Welcome back, Raoul!</h4>
+                <div class="bg-slate-800 rounded-xl shadow-sm w-full py-3">
+                    <p id="weather-display" class="justify-self-left">—</p>
+                </div>
             </div>
-            <div class="bg-slate-800 rounded-xl shadow-sm p-4 w-full">
-                <p id="weather-display" class="justify-self-left">—</p>
+            <div class="bg-slate-800 rounded-xl shadow-sm w-full p-3 ">
+                <h3 class="justify-self-center text-lg">Mood</h3>
+                <p id="mood-score" class="justify-self-center">—</p>
             </div>
-            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
-                <h3 class="justify-self-center">Mood</h3>
-                <p id="mood-score" class="justify-self-center text-6xl pt-5 pb-4">—</p>
+            <div class="bg-slate-800 rounded-xl shadow-sm w-full p-3">
+                <h3 class="justify-self-center text-lg">Energy</h3>
+                <p id="energy-score" class="justify-self-center">—</p>
             </div>
-            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
-                <h3 class="justify-self-center">Energy</h3>
-                <p id="energy-score" class="justify-self-center text-6xl pt-5 pb-4">—</p>
+            <div class="bg-slate-800 rounded-xl shadow-sm w-full p-3">
+                <h3 class="justify-self-center text-lg">Stress</h3>
+                <p id="stress-score" class="justify-self-center">—</p>
             </div>
-            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
-                <h3 class="justify-self-center">Stress</h3>
-                <p id="stress-score" class="justify-self-center text-6xl pt-5 pb-4">—</p>
+            <div class="flex flex-col gap-4">
+                <button onclick="showView('quick-log-mood')" class="p-2 w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 transition-all duration-200 flex items-center justify-center">⚡ Quick Log</button>
+                <button onclick="window.location.href='/detail'" class="p-2 w-full bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-semibold rounded-2xl border border-slate-700 transition-all duration-200 flex items-center justify-center">📝 Detail Log</button>
             </div>
-            <button onclick="showView('quick-log-mood')" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 transition-all duration-200 flex items-center justify-center gap-2">⚡ Quick Log</button>
-            <button onclick="window.location.href='/detail'" class="w-full py-4 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-semibold rounded-2xl border border-slate-700 transition-all duration-200 flex items-center justify-center gap-2">📝 Detail Log</button>
             <br>
             <div class="flex flex-row">
                 <button id="delete-first" onclick="safetyCheck();" class="w-full py-4 p-5 bg-red-500 text-white font-bold rounded-2xl">❌ Reset Today's Entry</button>
@@ -123,7 +126,7 @@
         </div>
         <script>
             const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
-            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpqeXlwY2N1aGFncnNqYnhmaXBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNTE1ODUsImV4cCI6MjA5MTkyNzU4NX0.rTmgdc4CBsRWq2FutKGqbB-fh04RGhTkLgQALWhny54"
+            const SUPABASE_ANON_KEY = "sb_publishable_AP_aE9BRhq4hzpNBbsRqNw_gxAoXF67"
             const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
             document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
@@ -251,11 +254,11 @@
                 })
                 .then(data => {
                     document.getElementById("mood-score").innerText = data["mood_score"];
-                    document.getElementById("mood-score").className = `font-bold justify-self-center text-6xl pt-5 pb-4 ${getScoreColor("mood", data["mood_score"])}`
+                    document.getElementById("mood-score").className = `font-bold justify-self-center text-6xl ${getScoreColor("mood", data["mood_score"])}`
                     document.getElementById("energy-score").innerText = data["energy_score"];
-                    document.getElementById("energy-score").className = `font-bold justify-self-center text-6xl pt-5 pb-4 ${getScoreColor("energy", data["energy_score"])}`
+                    document.getElementById("energy-score").className = `font-bold justify-self-center text-6xl ${getScoreColor("energy", data["energy_score"])}`
                     document.getElementById("stress-score").innerText = data["stress_score"];
-                    document.getElementById("stress-score").className = `font-bold justify-self-center text-6xl pt-5 pb-4 ${getScoreColor("stress", data["stress_score"])}`
+                    document.getElementById("stress-score").className = `font-bold justify-self-center text-6xl ${getScoreColor("stress", data["stress_score"])}`
                 })
                 .catch(error => {
                     showToast("Error: " + error.message, true);
@@ -380,6 +383,19 @@
                 getAverages();
                 getWeather();
             })
+
+            async function handleLogout() {
+                try {
+                    const { error } = await supabaseClient.auth.signOut();
+
+                    if (error) throw error;
+
+                    window.location.href = "/login";
+                } catch (error) {
+                    console.error("Error logging out: ", error.message);
+                    showToast("Failed to log out: " + error.message, true)
+                }
+            }
 
         </script>
     </body>

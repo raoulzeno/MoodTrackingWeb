@@ -22,14 +22,16 @@ SECONDARY_WEIGHTS = [
     6
 ]
 
+uuid = "432b967e-21b4-418d-bea8-19a1a3bb99a8"
+
 def seed_database():
     with app.app_context():
         print("🌱 Starting the 365-day seeding process...")
 
         # 1. Make sure our default user exists
-        user = User.query.get(1)
+        user = User.query.get(uuid)
         if not user:
-            user = User(username="Admin")
+            user = User(username="Admin_final")
             db.session.add(user)
             db.session.commit()
 
@@ -40,11 +42,11 @@ def seed_database():
 
         for act_name in default_activities:
             if not Activity.query.filter_by(name=act_name).first():
-                db.session.add(Activity(name=act_name, user_id=1))
+                db.session.add(Activity(name=act_name, user_id=uuid))
         
         for sub_name in default_substances:
             if not Substance.query.filter_by(name=sub_name).first():
-                db.session.add(Substance(name=sub_name, user_id=1))
+                db.session.add(Substance(name=sub_name, user_id=uuid))
         
         db.session.commit()
 
@@ -83,7 +85,7 @@ def seed_database():
 
             # 4. Create the entry object
             entry = MoodEntry(
-                user_id=1,
+                user_id=uuid,
                 entry_type="detailed",
                 timestamp=target_date,
                 mood=mood,

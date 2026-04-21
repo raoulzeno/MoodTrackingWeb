@@ -29,7 +29,7 @@
                 <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
             </button>
 
-            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Raoul's Tracker</span>
+            <span id="tracker-title" class="text-xs uppercase tracking-widest text-slate-500 font-bold">Raoul's Tracker</span>
 
             <div class="w-6"></div>
         </nav>
@@ -50,29 +50,168 @@
                 </h2>
             </div>
         </div>
-        <div id="profile" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full flex flex-col justify-center items-center gap-4">
-            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
-                <h2 class="text-xl font-bold mb-6">Account and Profile</h2>
-                
-                <div class="flex flex-col gap-6">
-                    <div class="w-full">
-                    </div>
+        <div id="profile" class="self-start shadow-sm w-full py-3 rounded-xl">
+            <h2 class="text-xl font-semibold justify-self-left px-1">Account & Data</h2>
+            <hr class="mb-4 text-gray-200 w-full">
+            <form class="flex flex-col gap-4 mb-6">
+                <div class="flex flex-col px-1">
+                    <label for="userName" class="text-sm font-medium text-gray-600 mb-1">Name</label>
+                    <input type="text" id="userName" value="-" class="w-full bg-slate-800 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none transition">
                 </div>
+                <div class="flex flex-col px-1">
+                    <label for="userEmail" class="text-sm font-medium text-gray-600 mb-1">Email</label>
+                    <input type="email" id="userEmail" value="-" class="w-full border bg-slate-800 border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                </div>
+                
+                <button type="button" id="saveProfileBtn" onclick="changeUserNameEmail()" class="self-end bg-indigo-600 text-white px-5 py-2 mt-2 rounded-lg font-medium hover:bg-blue-700 transition">
+                    Save Changes
+                </button>
+            </form>
+        </div>
+        <hr class="mb-4 text-gray-200">
+        <div class="flex items-center justify-between px-1 py-2">
+            <div class="flex flex-col">
+                <h3 class="text-md font-semibold text-gray-800">Password</h3>
+                <p class="text-sm text-gray-500">Update your login credentials</p>
+            </div>
+            <button onclick="openPasswordModal()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition">
+                Change
+            </button>
+        </div>
+        <div id="password-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm transition-opacity">
+            <div class="bg-slate-800 border border-slate-700 w-full max-w-md p-6 rounded-2xl shadow-xl transform transition-transform scale-95">
+                <h2 class="text-xl font-bold text-white mb-2">Change Password</h2>
+                <p class="text-sm text-slate-400 mb-6">Enter your new password below. Make sure it's at least 6 characters long.</p>
+                
+                <form id="password-form" class="flex flex-col gap-4">
+                    <div class="flex flex-col">
+                        <label for="newPassword" class="text-sm font-medium text-slate-300 mb-1">New Password</label>
+                        <input type="password" id="newPassword" class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none transition" required minlength="6">
+                    </div>
+                    
+                    <div class="flex flex-col mb-2">
+                        <label for="confirmPassword" class="text-sm font-medium text-slate-300 mb-1">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none transition" required minlength="6">
+                    </div>
+                    
+                    <div class="flex justify-end gap-3 mt-2">
+                        <button type="button" onclick="closePasswordModal()" class="px-4 py-2 rounded-lg font-medium text-slate-300 hover:bg-slate-700 transition">
+                            Cancel
+                        </button>
+                        <button type="button" id="updatePasswordBtn" onclick="updatePassword()" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-        <div id="customization">
+        <div id="customization" class="self-start shadow-sm w-full py-4 px-5 rounded-xl mb-6">
+            <h2 class="text-xl font-semibold px-1 mb-3">Customization</h2>
+            <hr class="mb-4 text-gray-200">
+            </div>
 
+        <div id="preferences" class="self-start bg-white shadow-sm w-full py-4 px-5 rounded-xl mb-6">
+            <h2 class="text-xl font-semibold px-1 mb-3">Notifications</h2>
+            <hr class="mb-4 text-gray-200">
+            </div>
+
+        <div id="danger" class="self-start bg-red-50 border border-red-100 shadow-sm w-full py-4 px-5 rounded-xl">
+            <h2 class="text-xl font-semibold text-red-600 px-1 mb-3">Danger Zone</h2>
+            <hr class="mb-4 border-red-200">
+            
+            <div class="flex items-center justify-between px-1 py-2">
+                <div class="flex flex-col">
+                    <h3 class="text-md font-semibold text-gray-900">Delete Account</h3>
+                    <p class="text-sm text-gray-600">Permanently remove your data</p>
+                </div>
+                <button class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition">
+                    Delete
+                </button>
+            </div>
         </div>
-        <div id="prferences">
-
-        </div>
-        <div id="danger">
-
+        <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center p-4 mb-4 w-full max-w-xs text-slate-100 bg-slate-800 rounded-2xl shadow-lg border border-slate-700 transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
+            <div id="toast-icon" class="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl">
+                ✅
+            </div>
+            <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
         </div>
         <script>
             const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
             const SUPABASE_ANON_KEY = "sb_publishable_AP_aE9BRhq4hzpNBbsRqNw_gxAoXF67"
             const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+            document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
+
+            function toggleMenu() {
+                const menu = document.getElementById("mobile-menu");
+                menu.classList.toggle("hidden");
+            }
+
+            function openPasswordModal() {
+                const modal = document.getElementById("password-modal");
+                modal.classList.remove("hidden");
+                setTimeout(() => {
+                    modal.firstElementChild.classList.remove("scale-95");
+                    modal.firstElementChild.classList.add("scale-100");
+                }, 10);
+            }
+
+            function closePasswordModal() {
+                const modal = document.getElementById("password-modal");
+                modal.firstElementChild.classList.remove("scale-100");
+                modal.firstElementChild.classList.add("scale-95");
+                
+                setTimeout(() => {
+                    modal.classList.add("hidden");
+                    document.getElementById("password-form").reset();
+                }, 200);
+            }
+
+            async function updatePassword() {
+                const newPassword = document.getElementById("newPassword").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+                const updateBtn = document.getElementById("updatePasswordBtn");
+
+                if (newPassword.length < 6) {
+                    showToast("Password must be at least 6 characters long.", true);
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    showToast("Passwords do not match. Please try again.", true);
+                    return;
+                }
+
+                updateBtn.disabled = true;
+                updateBtn.innerText = "Updating...";
+
+                const { data, error } = await supabaseClient.auth.updateUser({
+                    password: newPassword
+                });
+
+                updateBtn.disabled = false;
+                updateBtn.innerText = "Update Password";
+
+                if (error) {
+                    showToast("Error updating password: " + error.message, true);
+                    console.error("Supabase Error:", error);
+                } else {
+                    showToast("Password updated successfully!");
+                    closePasswordModal();
+                }
+            }
+
+            async function handleLogout() {
+                try {
+                    const { error } = await supabaseClient.auth.signOut();
+
+                    if (error) throw error;
+
+                    window.location.href = "/login";
+                } catch (error) {
+                    console.error("Error logging out: ", error.message);
+                    showToast("Failed to log out: " + error.message, true)
+                }
+            }
 
             function showToast(message, isError = false) {
                 const toast = document.getElementById("toast");
@@ -105,21 +244,49 @@
                 errorDiv.classList.remove("hidden");
             }
 
-            async function handleForgottenPassword() {
-                const { data: { user }} = await supabaseClient.auth.;
+            async function changeUserNameEmail() {
+                const newUserName = document.getElementById("userName").value.trim();
+                const newEmail = document.getElementById("userEmail").value.trim();
 
-                if (!email) return showError("Please enter your email address.")
+                const saveButton = document.getElementById("saveProfileBtn");
+                saveButton.disabled = true;
+                saveButton.innerText = "Saving...";
 
-                const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                    redirectTo: "http://localhost:5000/update-password",
+                const { data, error } = await supabaseClient.auth.updateUser({
+                    email: newEmail,
+                    data: {
+                        display_name: newUserName
+                    }
                 });
 
+                saveButton.disabled = false;
+                saveButton.innerText = "Save Changes";
+
                 if (error) {
-                    showToast("Error: " + error.message, true);
+                    showToast("Error updating profile: " + error.message, true)
+                    console.error("Supabase Error: ", error);
                 } else {
-                    showToast("Password reset email sent! Check your inbox.", false)
+                    showToast("Profile updated successfully! If you changed your email, please check your inbox to confirm the change.")
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000) 
                 }
             }
+
+            async function getUserCredentials() {
+                const { data: { user }} = await supabaseClient.auth.getUser();
+                if (user && user.user_metadata) {
+                    const name = user.user_metadata.display_name;
+                    const email = user.email;
+                    document.getElementById("tracker-title").innerText = `${name}'s Tracker`
+                    document.getElementById("userName").value = `${name}`
+                    document.getElementById("userEmail").value = `${email}`
+                }
+            }
+
+            window.addEventListener("DOMContentLoaded", () =>{
+                getUserCredentials();
+            })
         </script>
     </body>
 </html>

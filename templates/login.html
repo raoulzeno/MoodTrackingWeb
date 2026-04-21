@@ -22,7 +22,7 @@
             <p class="text-slate-400 text-sm tracking-widest uppercase font-semibold">Authentication</p>
         </div>
 
-        <div class="bg-slate-800/50 p-8 rounded-xl border border-slate-700/50 backdrop-blur-sm w-full max-w-md shadow-xl">
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 backdrop-blur-sm w-full max-w-md shadow-xl">
             <div class="flex flex-col gap-4">
                 
                 <div id="auth-error" class="hidden bg-rose-500/10 text-rose-400 border border-rose-500/20 text-sm p-3 rounded-md text-center">
@@ -38,6 +38,13 @@
                     <label class="block text-sm font-bold text-slate-400 mb-1">Password</label>
                     <input type="password" id="password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="••••••••">
                 </div>
+                
+                <div class="text-center mt-2">
+                    <span class="text-sm text-slate-500">Forgot your password?</span>
+                    <button onclick="handleForgottenPassword()" class="text-rose-400 hover:text-rose-300 text-sm font-bold ml-1 transition-colors">
+                        Reset Password
+                    </button>
+                </div>
 
                 <button onclick="handleLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg transition-colors mt-2">
                     Sign In
@@ -45,7 +52,7 @@
 
                 <div class="text-center mt-2">
                     <span class="text-slate-500 text-sm">Don't have an account?</span>
-                    <button onclick="handleSignUp()" class="text-indigo-400 hover:text-indigo-300 text-sm font-bold ml-1 transition-colors">
+                    <button onclick="window.location.href = '/signup'" class="text-indigo-400 hover:text-indigo-300 text-sm font-bold ml-1 transition-colors">
                         Sign Up
                     </button>
                 </div>
@@ -127,6 +134,22 @@
                     showError(error.message)
                 } else {
                     showToast("Account created successfully! You can now sign in.", false)
+                }
+            }
+
+            async function handleForgottenPassword() {
+                const email = document.getElementById("email").value;
+
+                if (!email) return showError("Please enter your email address.")
+
+                const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: "http://localhost:5000/update-password",
+                });
+
+                if (error) {
+                    showToast("Error: " + error.message, true);
+                } else {
+                    showToast("Password reset email sent! Check your inbox.", false)
                 }
             }
         </script>

@@ -113,6 +113,18 @@ def token_required(f):
 def home():
     return render_template("index.html")
 
+@app.route("/settings")
+def settings():
+    return render_template("settings.html")
+
+@app.route("/update-password")
+def update_page():
+    return render_template("update-password.html")
+
+@app.route("/signup")
+def signup_page():
+    return render_template("signup.html")
+
 @app.route("/login")
 def login_page():
     return render_template("login.html")

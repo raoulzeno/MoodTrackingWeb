@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                extend: {
+                    fontFamily: {
+                    sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+                }
+            }
+            </script>
+        <title>Mood Tracker</title>
+    </head>
+    <body class="bg-slate-900 text-slate-100 font-sans p-3">
+        <nav class="flex p-4 items-center justify-between p-3 w-full bg-transparent relative top-0">
+            <button id="hamburger-btn" class="flex flex-col gap-1.5 focus:outline-none top-0">
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+            </button>
+
+            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Raoul's Tracker</span>
+
+            <div class="w-6"></div>
+        </nav>
+        <div id="mobile-menu" class="hidden fixed inset-0 pt-3 bg-slate-950/95 z-50 flex flex-col items-center justify-center gap-8">
+            <button onclick="toggleMenu()" class="absolute top-6 left-6 text-white text-3xl">&times;</button>
+
+            <a href="/" class="text-2xl font-bold text-white hover:text-indigo-400">Dashboard</a>
+            <a href="/detail" class="text-2xl font-bold text-white hover:text-indigo-400">Detail Log</a>
+            <a href="/visualizations" class="text-2xl font-bold text-white hover:text-indigo-400">Visualizations</a>
+            <a href="/notes-feed" class="text-2xl font-bold text-white hover:text-indigo-400">Notes Feed</a>
+
+            <button onclick="handleLogout()" class="text-2xl font-bold text-rose-500 hover:text-rose-400 mt-8">Log Out</button>
+        </div>
+        <hr>
+        <div class="flex flex-col justify-center items-center gap-4">
+            <div class="self-start">
+                <h2 class="text-2xl font-bold pt-5">Settings</h2>
+                </h2>
+            </div>
+        </div>
+        <div id="profile" class="bg-slate-800 rounded-xl shadow-sm p-6 w-full flex flex-col justify-center items-center gap-4">
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Account and Profile</h2>
+                
+                <div class="flex flex-col gap-6">
+                    <div class="w-full">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="customization">
+
+        </div>
+        <div id="prferences">
+
+        </div>
+        <div id="danger">
+
+        </div>
+        <script>
+            const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
+            const SUPABASE_ANON_KEY = "sb_publishable_AP_aE9BRhq4hzpNBbsRqNw_gxAoXF67"
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+            function showToast(message, isError = false) {
+                const toast = document.getElementById("toast");
+                const toastMessage = document.getElementById("toast-message");
+                const toastIcon = document.getElementById("toast-icon");
+
+                toastMessage.innerText = message;
+
+                if (isError) {
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-red-500/20 text-red-400 text-xl";
+                    toastIcon.innerHTML = "❌";
+                } else {
+                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl";
+                    toastIcon.innerHTML = "✅"
+                }
+
+                toast.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
+                toast.classList.add("opacity-100", "translate-y-0")
+
+                setTimeout(() => {
+                    toast.classList.remove("opacity-100", "translate-y-0");
+                    toast.classList.add("opacity-0", "translate-y-4", "pointer-events-none")
+                }, 3000);
+            }
+
+
+            function showError(message) {
+                const errorDiv = document.getElementById("auth-error");
+                errorDiv.innerText = message;
+                errorDiv.classList.remove("hidden");
+            }
+
+            async function handleForgottenPassword() {
+                const { data: { user }} = await supabaseClient.auth.;
+
+                if (!email) return showError("Please enter your email address.")
+
+                const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: "http://localhost:5000/update-password",
+                });
+
+                if (error) {
+                    showToast("Error: " + error.message, true);
+                } else {
+                    showToast("Password reset email sent! Check your inbox.", false)
+                }
+            }
+        </script>
+    </body>
+</html>

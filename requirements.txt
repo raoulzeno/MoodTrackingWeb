@@ -41,8 +41,8 @@ postgrest==2.28.3
 propcache==0.4.1
 psycopg2-binary==2.9.11
 pycparser==3.0
-pydantic==2.13.2
-pydantic_core==2.46.2
+pydantic==2.13.1
+pydantic_core==2.46.1
 Pygments==2.20.0
 pyiceberg==0.11.1
 PyJWT==2.12.1

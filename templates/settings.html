@@ -29,7 +29,7 @@
                 <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
             </button>
 
-            <span id="tracker-title" class="text-xs uppercase tracking-widest text-slate-500 font-bold">Raoul's Tracker</span>
+            <span id="tracker-title" class="text-xs uppercase tracking-widest text-slate-500 font-bold">Your Tracker</span>
 
             <div class="w-6"></div>
         </nav>
@@ -40,6 +40,7 @@
             <a href="/detail" class="text-2xl font-bold text-white hover:text-indigo-400">Detail Log</a>
             <a href="/visualizations" class="text-2xl font-bold text-white hover:text-indigo-400">Visualizations</a>
             <a href="/notes-feed" class="text-2xl font-bold text-white hover:text-indigo-400">Notes Feed</a>
+            <a href="/settings" class="text-2xl font-bold text-white hover:text-indigo-400">Settings</a>
 
             <button onclick="handleLogout()" class="text-2xl font-bold text-rose-500 hover:text-rose-400 mt-8">Log Out</button>
         </div>
@@ -47,7 +48,6 @@
         <div class="flex flex-col justify-center items-center gap-4">
             <div class="self-start">
                 <h2 class="text-2xl font-bold pt-5">Settings</h2>
-                </h2>
             </div>
         </div>
         <div id="profile" class="self-start shadow-sm w-full py-3 rounded-xl">
@@ -63,19 +63,39 @@
                     <input type="email" id="userEmail" value="-" class="w-full border bg-slate-800 border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none transition">
                 </div>
                 
-                <button type="button" id="saveProfileBtn" onclick="changeUserNameEmail()" class="self-end bg-indigo-600 text-white px-5 py-2 mt-2 rounded-lg font-medium hover:bg-blue-700 transition">
+                <button type="button" id="saveProfileBtn" onclick="changeUserNameEmail()" class="self-end bg-indigo-600 text-white px-5 py-2 mt-2 rounded-lg font-medium hover:bg-indigo-700 transition">
                     Save Changes
                 </button>
             </form>
         </div>
         <hr class="mb-4 text-gray-200">
-        <div class="flex items-center justify-between px-1 py-2">
+        <div class="flex items-center justify-between px-1 py-2 mb-6">
             <div class="flex flex-col">
-                <h3 class="text-md font-semibold text-gray-800">Password</h3>
-                <p class="text-sm text-gray-500">Update your login credentials</p>
+                <h3 class="text-md font-semibold text-gray-200">Password</h3>
+                <p class="text-sm text-gray-500">Update your password</p>
             </div>
-            <button onclick="openPasswordModal()" class="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition">
+            <button onclick="openPasswordModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
                 Change
+            </button>
+        </div>
+        <hr class="mb-4 text-gray-200">
+        <div class="flex items-center justify-between px-1 py-2 mb-6">
+            <div class="flex flex-col">
+                <h3 class="text-md font-semibold text-gray-200">Export</h3>
+                <p class="text-sm text-gray-500">Export your data to a CSV file</p>
+            </div>
+            <button onclick="exportData(this)" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+                Export
+            </button>
+        </div>
+        <hr class="mb-4 text-gray-200">
+        <div class="flex items-center justify-between px-1 py-2 mb-6">
+            <div class="flex flex-col">
+                <h3 class="text-md font-semibold text-gray-200">Edit Data</h3>
+                <p class="text-sm text-gray-500">Edit your past logs here</p>
+            </div>
+            <button onclick="window.location.href = '/edit-logs'" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+                Edit Logs
             </button>
         </div>
         <div id="password-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm transition-opacity">
@@ -105,17 +125,27 @@
                 </form>
             </div>
         </div>
-        <div id="customization" class="self-start shadow-sm w-full py-4 px-5 rounded-xl mb-6">
-            <h2 class="text-xl font-semibold px-1 mb-3">Customization</h2>
-            <hr class="mb-4 text-gray-200">
-            </div>
-
-        <div id="preferences" class="self-start bg-white shadow-sm w-full py-4 px-5 rounded-xl mb-6">
-            <h2 class="text-xl font-semibold px-1 mb-3">Notifications</h2>
-            <hr class="mb-4 text-gray-200">
-            </div>
-
-        <div id="danger" class="self-start bg-red-50 border border-red-100 shadow-sm w-full py-4 px-5 rounded-xl">
+        <div id="customization" class="self-start shadow-sm w-full py-3 rounded-xl hidden">
+            <h2 class="text-xl font-semibold justify-self-left px-1">Customization</h2>
+            <hr class="mb-4 text-gray-200 w-full">
+            <h2 class="text-xl font-bold mb-6">Activities</h2>
+                <div class="flex flex-col gap-2">
+                        <div class="flex flex-wrap flex-row gap-2">
+                           <div id="activities-container" class="flex flex-wrap flex-row gap-2">
+                                <p class="text-slate-500 text-sm">Loading activities...</p>
+                            </div>
+                        </div>
+                </div>
+            <h2 class="text-xl font-bold mb-6 mt-3">Substances</h2>
+                <div class="flex flex-col gap-2">
+                        <div class="flex flex-wrap flex-row gap-2">
+                           <div id="substances-container" class="flex flex-wrap flex-row gap-2">
+                                <p class="text-slate-500 text-sm">Loading substances...</p>
+                            </div>
+                        </div>
+                </div>
+        </div>
+        <div id="danger" class="self-start bg-slate-50 border border-red-100 shadow-sm w-full py-4 px-5 rounded-xl">
             <h2 class="text-xl font-semibold text-red-600 px-1 mb-3">Danger Zone</h2>
             <hr class="mb-4 border-red-200">
             
@@ -124,7 +154,7 @@
                     <h3 class="text-md font-semibold text-gray-900">Delete Account</h3>
                     <p class="text-sm text-gray-600">Permanently remove your data</p>
                 </div>
-                <button class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition">
+                <button onclick="deleteAccount(this)" class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition">
                     Delete
                 </button>
             </div>
@@ -135,16 +165,44 @@
             </div>
             <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
         </div>
-        <script>
-            const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
-            const SUPABASE_ANON_KEY = "sb_publishable_AP_aE9BRhq4hzpNBbsRqNw_gxAoXF67"
-            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        <script type="module">
+            import { supabaseClient } from "/static/js/supabaseConfig.js"
+            import { handleLogout, loadTrackingItems, toggleMenu, showToast, showError, updateBanner} from "/static/js/baseFunctions.js"
 
             document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
 
-            function toggleMenu() {
-                const menu = document.getElementById("mobile-menu");
-                menu.classList.toggle("hidden");
+            async function deleteAccount(btnElement) {
+                const confirmWipe = confirm("ARE YOU ABSOLUTELY SURE? \n\n This will permanently delete your account and wipe all of your tracking data forever. This cannot be undone.")
+
+                if (!confirmWipe) return;
+
+                try {
+                    const { data : { session }} = await supabaseClient.auth.getSession();
+                    if (!session) return window.location.href = "/login";
+
+                    btnElement.innerText = "Deleting everything...";
+                    btnElement.disabled = true;
+
+                    const response = await fetch("/api/delete-account", {
+                        method: "DELETE",
+                        headers: { "Authorization": `Bearer ${session.access_token}`}
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.message || "Failed deleting account.");
+                    }
+
+                    await supabaseClient.auth.signOut();
+
+                    alert("Account successfully deleted. We're sorry to see you go!");
+                    window.location.href = "/signup";
+                } catch (error) {
+                    console.error("Deletion error: ", error);
+                    showToast(error.message, true);
+                    btnElement.innerText = "Delete";
+                    btnElement.disabled = false;
+                }
             }
 
             function openPasswordModal() {
@@ -165,6 +223,54 @@
                     modal.classList.add("hidden");
                     document.getElementById("password-form").reset();
                 }, 200);
+            }
+
+            async function exportData(exportBtn) {
+                try {
+                    const { data: { session }} = await supabaseClient.auth.getSession();
+                    if (!session) {
+                        window.location.href = "/login";
+                        return;
+                    }
+
+                    const originalText = exportBtn.innerText;
+                    exportBtn.innerText = "Downloading...";
+                    exportBtn.disabled = true;
+
+                    const response = await fetch("/api/export-user-data", {
+                        method: "GET",
+                        headers: { "Authorization": `Bearer ${session.access_token}`}
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || "Export failed.");
+                    }
+
+                    const blob = await response.blob();
+
+                    const downloadUrl = window.URL.createObjectURL(blob);
+
+                    const a = document.createElement("a");
+                    a.style.display = "none";
+                    a.href = downloadUrl;
+                    a.download = "mood_tracker_export.csv";
+
+                    document.body.appendChild(a);
+                    a.click();
+
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(downloadUrl);
+
+                    exportBtn.innerText = originalText;
+                    exportBtn.disabled = false;
+                    showToast("Download started!", false)
+                } catch (error) {
+                    console.error("Export error:", error)
+                    showToast("Failed to export: " + error.message, true);
+                    exportBtn.innerText = "Export";
+                    exportBtn.disabled = false;
+                }
+                
             }
 
             async function updatePassword() {
@@ -198,50 +304,6 @@
                     showToast("Password updated successfully!");
                     closePasswordModal();
                 }
-            }
-
-            async function handleLogout() {
-                try {
-                    const { error } = await supabaseClient.auth.signOut();
-
-                    if (error) throw error;
-
-                    window.location.href = "/login";
-                } catch (error) {
-                    console.error("Error logging out: ", error.message);
-                    showToast("Failed to log out: " + error.message, true)
-                }
-            }
-
-            function showToast(message, isError = false) {
-                const toast = document.getElementById("toast");
-                const toastMessage = document.getElementById("toast-message");
-                const toastIcon = document.getElementById("toast-icon");
-
-                toastMessage.innerText = message;
-
-                if (isError) {
-                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-red-500/20 text-red-400 text-xl";
-                    toastIcon.innerHTML = "❌";
-                } else {
-                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl";
-                    toastIcon.innerHTML = "✅"
-                }
-
-                toast.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
-                toast.classList.add("opacity-100", "translate-y-0")
-
-                setTimeout(() => {
-                    toast.classList.remove("opacity-100", "translate-y-0");
-                    toast.classList.add("opacity-0", "translate-y-4", "pointer-events-none")
-                }, 3000);
-            }
-
-
-            function showError(message) {
-                const errorDiv = document.getElementById("auth-error");
-                errorDiv.innerText = message;
-                errorDiv.classList.remove("hidden");
             }
 
             async function changeUserNameEmail() {
@@ -278,7 +340,6 @@
                 if (user && user.user_metadata) {
                     const name = user.user_metadata.display_name;
                     const email = user.email;
-                    document.getElementById("tracker-title").innerText = `${name}'s Tracker`
                     document.getElementById("userName").value = `${name}`
                     document.getElementById("userEmail").value = `${email}`
                 }
@@ -286,7 +347,20 @@
 
             window.addEventListener("DOMContentLoaded", () =>{
                 getUserCredentials();
+                loadTrackingItems();
+                updateBanner();
             })
+            window.toggleMenu = toggleMenu;
+            window.handleLogout = handleLogout;
+            window.loadTrackingItems = loadTrackingItems;
+            window.showError = showError;
+            window.showToast = showToast;
+            window.exportData = exportData;
+            window.openPasswordModal = openPasswordModal;
+            window.closePasswordModal = closePasswordModal;
+            window.updatePassword = updatePassword;
+            window.changeUserNameEmail = changeUserNameEmail;
+            window.deleteAccount = deleteAccount;
         </script>
     </body>
 </html>

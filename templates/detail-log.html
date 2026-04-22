@@ -13,7 +13,6 @@
                 theme: {
                 extend: {
                     fontFamily: {
-                    // This tells Tailwind to replace its default "sans" font with our new Inter font
                     sans: ['Montserrat', 'sans-serif'],
                     }
                 }
@@ -30,7 +29,7 @@
                 <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
             </button>
 
-            <span class="text-xs uppercase tracking-widest text-slate-500 font-bold">Raoul's Tracker</span>
+            <span id="tracker-title" class="text-xs uppercase tracking-widest text-slate-500 font-bold">Someone's Tracker</span>
 
             <div class="w-6"></div>
         </nav>
@@ -41,6 +40,9 @@
             <a href="/detail" class="text-2xl font-bold text-white hover:text-indigo-400">Detail Log</a>
             <a href="/visualizations" class="text-2xl font-bold text-white hover:text-indigo-400">Visualizations</a>
             <a href="/notes-feed" class="text-2xl font-bold text-white hover:text-indigo-400">Notes Feed</a>
+            <a href="/settings" class="text-2xl font-bold text-white hover:text-indigo-400">Settings</a>
+
+            <button onclick="handleLogout()" class="text-2xl font-bold text-rose-500 hover:text-rose-400 mt-8">Log Out</button>
         </div>
         <hr>
         <div id="detail-log" class="flex flex-col justify-center items-center gap-4">
@@ -191,12 +193,9 @@
                 <h2 class="text-xl font-bold mb-6">Activities</h2>
                 <div class="flex flex-col gap-2">
                         <div class="flex flex-wrap flex-row gap-2">
-                            {% for activity in activities %}
-                            <div class="flex items-center gap-2">
-                                <input type="checkbox" id="act-{{ activity.id }}" name="activities" data-id="{{ activity.id }}" class="hidden peer">
-                                <label for="act-{{ activity.id }}" class="inline-block px-5 py-2 rounded-full border border-slate-700 bg-slate-800 text-slate-300 font-semibold cursor-pointer transition-all duration-200 select-none hover:bg-slate-700 peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">{{ activity.name.capitalize() }}</label>
+                           <div id="activities-container" class="flex flex-wrap flex-row gap-2">
+                                <p class="text-slate-500 text-sm">Loading activities...</p>
                             </div>
-                            {% endfor %}
                         </div>
                 </div>
             </div>
@@ -279,61 +278,10 @@
                         </div>
                     </div>
                 <label for="substances" class="text-sm font-medium text-slate-300">Substances Consumed</label>
-                    <div class="flex flex-col gap-4">
-                        {% for substance in substances %}
-                            <div class="p-4 bg-slate-900 rounded-xl shadow-sm border border-slate-700">
-                                <div class="flex items-center gap-3">
-                                    <input type="checkbox" 
-                                        id="substance-{{ substance.id }}" 
-                                        name="substances" 
-                                        data-id="{{ substance.id }}" 
-                                        value="slider-container-{{ substance.id }}"
-                                        class="w-5 h-5 accent-blue-500 cursor-pointer"
-                                        onclick="displaySlider('slider-container-{{ substance.id }}', 'value-{{ substance.id }}', this)">
-                                    <label for="substance-{{ substance.id }}" class="text-lg font-semibold text-slate-200 cursor-pointer">
-                                        {{ substance.name.capitalize() }}
-                                    </label>
-                                </div>
-                                
-                                <div id="slider-container-{{ substance.id }}" style="display: none;" class="mt-4 pl-8">
-                                    
-                                    <input type="range" 
-                                        id="slider-{{ substance.id }}" 
-                                        min="1" max="10" value="1" 
-                                        class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
-                                        
-                                        /* Webkit (Chrome/Safari) */
-                                        [&::-webkit-slider-thumb]:appearance-none 
-                                        [&::-webkit-slider-thumb]:w-6 
-                                        [&::-webkit-slider-thumb]:h-6 
-                                        [&::-webkit-slider-thumb]:bg-blue-500 
-                                        [&::-webkit-slider-thumb]:rounded-full 
-                                        [&::-webkit-slider-thumb]:transition-all
-                                        [&::-webkit-slider-thumb]:hover:bg-blue-400
-                                        [&::-webkit-slider-thumb]:hover:scale-110
-                                        
-                                        /* Firefox */
-                                        [&::-moz-range-thumb]:appearance-none 
-                                        [&::-moz-range-thumb]:w-6 
-                                        [&::-moz-range-thumb]:h-6 
-                                        [&::-moz-range-thumb]:bg-blue-500 
-                                        [&::-moz-range-thumb]:border-none
-                                        [&::-moz-range-thumb]:rounded-full 
-                                        [&::-moz-range-thumb]:transition-all
-                                        [&::-moz-range-thumb]:hover:bg-blue-400
-                                        [&::-moz-range-thumb]:hover:scale-110"
-                                        
-                                        oninput="document.getElementById('value-{{ substance.id }}').innerText = this.value + ' unit(s)'">
-                                    
-                                    <div class="mt-2 text-slate-400 font-medium">
-                                        <span id="value-{{ substance.id }}">1 unit(s)</span>
-                                    </div>
-
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
+                <div id="substances-container" class="flex flex-col gap-4">
+                    <p class="text-slate-500 text-sm">Loading substances...</p>
+                </div>    
+                
             </div>
             <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
                 <h2 class="text-xl font-bold mb-6">Notes</h2>
@@ -357,42 +305,11 @@
             </div>
             <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
         </div>
-        <script>
-            const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
-            const SUPABASE_ANON_KEY = "sb_publishable_AP_aE9BRhq4hzpNBbsRqNw_gxAoXF67"
-            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        <script type="module">
+            import { supabaseClient } from "/static/js/supabaseConfig.js"
+            import { toggleMenu, loadTrackingItems, showToast, getWeather, handleLogout, updateBanner} from "/static/js/baseFunctions.js"
 
             document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
-
-            function toggleMenu() {
-                const menu = document.getElementById("mobile-menu");
-                menu.classList.toggle("hidden");
-            }
-
-
-            function showToast(message, isError = false) {
-                const toast = document.getElementById("toast");
-                const toastMessage = document.getElementById("toast-message");
-                const toastIcon = document.getElementById("toast-icon");
-
-                toastMessage.innerText = message;
-
-                if (isError) {
-                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-red-500/20 text-red-400 text-xl";
-                    toastIcon.innerHTML = "❌";
-                } else {
-                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl";
-                    toastIcon.innerHTML = "✅"
-                }
-
-                toast.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
-                toast.classList.add("opacity-100", "translate-y-0")
-
-                setTimeout(() => {
-                    toast.classList.remove("opacity-100", "translate-y-0");
-                    toast.classList.add("opacity-0", "translate-y-4", "pointer-events-none")
-                }, 3000);
-            }
 
             const sliders = ["mood", "energy", "stress", "sleep-time", "work-hours", "alcohol", "sugar", "caffeine", "meds"];
 
@@ -433,13 +350,6 @@
                 let checkedBoxes = document.querySelectorAll("input[name='activities']:checked");
                 let loggedSubstances = [];
                 let checkedSubstances = document.querySelectorAll("input[name='substances']:checked");
-                let weatherCondition = document.getElementById("weather-display").textContent
-
-                if (weatherCondition === "Could not fetch weather data.") {
-                    weatherCondition = null;
-                } else {
-                    weatherCondition = weatherCondition.substring(2);
-                }
 
                 checkedSubstances.forEach(function(box) {
                     let sliderId = box.value.replace("container-", "");
@@ -473,7 +383,6 @@
                     notes: document.getElementById("notes-textarea").value,
                     activities: selectedActivities,
                     substances: loggedSubstances,
-                    weather_condition: weatherCondition
                 };
 
                 fetch("/save-detail-log", {
@@ -542,39 +451,16 @@
                 });
             }
 
-            async function getWeather() {
-                const { data : { session }} = await supabaseClient.auth.getSession();
-
-                if (!session) {
-                    window.location.href = "/login";
-                    return;
-                }
-
-                fetch("/get-weather", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${session.access_token}`
-                    }
-                })
-                .then(async response => {
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.message);
-                    return data
-                })
-                .then(data => {
-                    document.getElementById("weather-display").innerText = data["weather"];
-                    document.getElementById("weather-display").value = data["weather"].substring(2);
-                })
-                .catch(error => {
-                    document.getElementById("weather-display").innerText = "Could not fetch weather data."
-                    alert("Error: " + error.message)
-                })
-            }
-
             window.addEventListener("DOMContentLoaded", () => {
+                updateBanner();
                 getQuickLogValues();
                 getWeather();
+                loadTrackingItems();
             });
+
+            window.toggleMenu = toggleMenu;
+            window.displaySlider = displaySlider;
+            window.handleLogout = handleLogout;
         </script>
     </body>
 </html>

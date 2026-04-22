@@ -1,10 +1,14 @@
 import os
-import uuid
+import jwt
+import csv
+import io
+from jwt import PyJWKClient
 from functools import wraps
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, make_response
 from supabase import create_client, Client
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
+from sqlalchemy import or_
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from weather import get_weather
@@ -14,6 +18,9 @@ load_dotenv()
 supabase_url = os.getenv("SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_SECRET_KEY")
 supabase: Client = create_client(supabase_url, supabase_key)
+jwks_url = f"{supabase_url}/auth/v1/.well-known/jwks.json"
+
+jwks_client = PyJWKClient(jwks_url)
 
 app = Flask(__name__)
 
@@ -88,6 +95,17 @@ class EntrySubstance(db.Model):
 
     substance = db.relationship("Substance")
 
+def get_color_class(metric_type, score):
+    if metric_type == "stress":
+        if score >= 7: return "text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.4)]"
+        if score >= 4: return "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.3)]"
+        return "text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]"
+    
+    else:
+        if score >= 7: return "text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]"
+        if score >= 4: return "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.3)]"
+        return "text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.4)]"
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -96,16 +114,27 @@ def token_required(f):
             parts = request.headers["Authorization"].split()
             if len(parts) == 2:
                 token = parts[1]
+        
         if not token:
-            return jsonify({"status" : "error", "message": "Authentication token is missing"}), 401
-
+            return jsonify({"status" : "error", "message" : "Authentication token is missing"}), 401
+        
         try:
-            user_response = supabase.auth.get_user(token)
-            current_user_id = user_response.user.id
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
 
+            decoded_token = jwt.decode(
+                token,
+                signing_key.key,
+                algorithms=["RS256", "ES256"],
+                audience="authenticated"
+            )
+
+            current_user_id = decoded_token["sub"]
+        except jwt.ExpiredSignatureError:
+            return jsonify({"status": "error", "message": "Token has expired"}), 401
         except Exception as e:
-            print(f"\n SUPABASE REJECTION CAUSE: {str(e)}\n")
+            print(f"\n JWT REJECTION CAUSE: {str(e)}\n")
             return jsonify({"status" : "error", "message" : "Invalid token"}), 401
+
         return f(current_user_id, *args, **kwargs)
     return decorated
 
@@ -113,9 +142,74 @@ def token_required(f):
 def home():
     return render_template("index.html")
 
+@app.route("/api/export-user-data")
+@token_required
+def export_user_data(current_user_id):
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == current_user_id
+    ).order_by(MoodEntry.timestamp.desc()).all()
+
+    si = io.StringIO()
+    cw = csv.writer(si)
+
+    cw.writerow([
+        "Date", "Time", "Entry Type", "Mood", "Energy", "Stress", "Sleep Quality", "Sleep Time", "Primary Emotion", "Secondary Emotion", "Work Hours", "Work Place", "Social Context", "Location", "Notes", "Weather"
+    ])
+
+    for e in entries:
+        date_str = e.timestamp.strftime("%Y-%m-%d") if e.timestamp else "N/A"
+        time_str = e.timestamp.strftime("%H:%M") if e.timestamp else "N/A"
+        
+        cw.writerow([
+            date_str,
+            time_str,
+            e.entry_type,
+            e.mood,
+            e.energy,
+            e.stress,
+            e.sleep_quality or "",
+            e.sleep_time or "",
+            e.primary_emotion or "",
+            e.secondary_emotion or "",
+            e.work_hours or "",
+            e.work_place or "",
+            e.social_context or "",
+            e.location or "",
+            e.notes or "",
+            e.weather_condition or ""
+        ])
+    
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=mood_tracker_export.csv"
+    output.headers["Content-type"] = "text/csv"
+
+    return output
+
+
+@app.route("/api/user-tracking-items", methods=["GET"])
+@token_required
+def get_tracking_items(current_user_id):
+    activities = db.session.query(Activity).filter(
+        or_(Activity.user_id == current_user_id, Activity.user_id.is_(None))
+    )
+
+    substances = db.session.query(Substance).filter(
+        or_(Substance.user_id == current_user_id, Substance.user_id.is_(None))
+    )
+
+    return jsonify({
+        "status" : "success",
+        "activities" : [{"id" : a.id, "name" : a.name} for a in activities],
+        "substances" : [{"id": s.id, "name": s.name} for s in substances]
+    }), 200
+
 @app.route("/settings")
 def settings():
     return render_template("settings.html")
+
+@app.route("/edit-logs")
+def edit_logs():
+    return render_template("edit-logs.html")
 
 @app.route("/update-password")
 def update_page():
@@ -131,9 +225,7 @@ def login_page():
 
 @app.route("/detail")
 def detail_log():
-    all_activities = db.session.query(Activity).all()
-    all_substances = db.session.query(Substance).all()
-    return render_template("detail-log.html", activities=all_activities, substances=all_substances)
+    return render_template("detail-log.html")
 
 @app.route("/visualizations")
 def visualization():
@@ -156,6 +248,133 @@ def fetch_weather():
         "status": "success",
         "weather" : weather_string
     }), 200
+
+
+@app.route("/get-timestamps", methods=["GET"])
+@token_required
+def get_timestamps(current_user_id):
+    entries = MoodEntry.query.filter(
+        MoodEntry.user_id == current_user_id,
+    ).order_by(MoodEntry.timestamp.desc()).all()
+    
+    logs = []
+    for e in entries:
+        entry_dict = {
+            "id" : e.id,
+            "date" : e.timestamp.strftime("%a, %d %b %Y")
+        }
+        logs.append(entry_dict)
+
+    data = {
+        "status" : "success",
+        "logs" : logs
+    }
+
+    return jsonify(data), 200
+
+@app.route("/edit-log/<int:entry_id>")
+def edit_specific_log_page(entry_id):
+    return render_template("edit-specific-log.html", entry_id=entry_id)
+
+@app.route("/api/get-single-log/<int:entry_id>", methods=["GET"])
+@token_required
+def get_single_log(current_user_id, entry_id):
+    entry = MoodEntry.query.filter_by(id=entry_id, user_id=current_user_id).first()
+
+    if not entry:
+        return jsonify({"status": "error", "message": "Log not found"}), 404
+
+    return jsonify({
+        "status" : "success",
+        "mood" : entry.mood,
+        "energy" : entry.energy,
+        "stress" : entry.stress,
+        "sleep_quality" : entry.sleep_quality,
+        "sleep_time" : entry.sleep_time,
+        "primary_emotion" : entry.primary_emotion,
+        "secondary_emotion" : entry.secondary_emotion,
+        "work_hours" : entry.work_hours,
+        "work_place" : entry.work_place,
+        "social_context" : entry.social_context,
+        "location" : entry.location,
+        "notes" : entry.notes,
+        "date" : entry.timestamp.strftime("%a, %d %b %Y")
+    }), 200
+
+@app.route("/api/delete-account", methods=["DELETE"])
+@token_required
+def delete_account(current_user_id):
+    try: 
+        entries = MoodEntry.query.filter_by(user_id=current_user_id).all()
+        for entry in entries:
+            db.session.delete(entry)
+
+        Activity.query.filter_by(user_id=current_user_id).delete()
+        Substance.query.filter_by(user_id=current_user_id).delete()
+
+        user_record = User.query.get(current_user_id)
+        if user_record:
+            db.session.delete(user_record)
+
+        db.session.commit()
+
+        supabase.auth.admin.delete_user(current_user_id)
+
+        return jsonify({"status" : "success", "message" : "Account deleted."}), 200
+    
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting account: {str(e)}")
+        return jsonify({"status": "error", "message": "Failed to delete account."}), 500
+
+@app.route("/api/update-log/<int:entry_id>", methods=["PUT"])
+@token_required
+def update_specific_log(current_user_id, entry_id):
+    data = request.json
+
+    entry = MoodEntry.query.filter_by(id=entry_id, user_id=current_user_id).first()
+    if not entry:
+        return jsonify({"status" : "error", "message" : "Log not found"}), 404
+    
+    try:
+        entry.mood = data.get("mood", entry.mood)
+        entry.energy = data.get("energy", entry.energy)
+        entry.stress = data.get("stress", entry.stress)
+        entry.sleep_quality = data.get("sleep_quality", entry.sleep_quality)
+        entry.sleep_time = data.get("sleep_time", entry.sleep_time)
+        entry.primary_emotion = data.get("primary_emotion", entry.primary_emotion)
+        entry.secondary_emotion = data.get("secondary_emotion", entry.secondary_emotion)
+        entry.work_hours = data.get("work_hours", entry.work_hours)
+        entry.work_place = data.get("work_place", entry.work_place)
+        entry.social_context = data.get("social_context", entry.social_context)
+        entry.location = data.get("location", entry.location)
+        entry.notes = data.get("notes", entry.notes)
+
+        activity_ids = data.get("activities", [])
+        if activity_ids:
+            new_activities = Activity.query.filter(Activity.id.in_(activity_ids)).all()
+            entry.activities = new_activities
+        else:
+            entry.activities = []
+
+        substances_data = data.get("substances", [])
+        EntrySubstance.query.filter_by(entry_id=entry.id).delete()
+
+        for sub in substances_data:
+            new_substance_log = EntrySubstance(
+                entry_id = entry.id,
+                substance_id=sub["id"],
+                dosage=sub["dosage"]
+            )
+            db.session.add(new_substance_log)
+        
+        db.session.commit()
+        return jsonify({"status" : "success", "message" : "Log updated successfully"}), 200
+    
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error updating log: {str(e)}")
+        return jsonify({"status": "error", "message": "Failed to update log"}), 500
 
 @app.route("/save-quick-log", methods=["POST"])
 @token_required
@@ -207,6 +426,9 @@ def save_detail_log(current_user_id):
             db.session.delete(existing_entry)
             db.session.flush()
 
+    raw_weather = get_weather()
+    clean_weather = raw_weather[2:] if raw_weather else None
+
     new_entry = MoodEntry(
         user_id=current_user_id,
         entry_type="detailed",
@@ -222,7 +444,7 @@ def save_detail_log(current_user_id):
         social_context=data["social_context"],
         location=data["location"],
         notes=data["notes"],
-        weather_condition=data["weather_condition"]
+        weather_condition=clean_weather
     )
     with db.session.no_autoflush:
         for act_id in data["activities"]:
@@ -347,8 +569,11 @@ def get_weekly_averages(current_user_id):
     return jsonify({
         "status" : "success",
         "mood_score" : round(stats.avg_mood, 1),
+        "mood_color" : get_color_class("mood", stats.avg_mood),
         "energy_score": round(stats.avg_energy, 1),
-        "stress_score" : round(stats.avg_stress, 1)
+        "energy_color" : get_color_class("energy", stats.avg_energy),
+        "stress_score" : round(stats.avg_stress, 1),
+        "stress_color" : get_color_class("stress", stats.avg_stress)
     }), 200
 
 @app.route("/get-trend-data", methods=["GET"])

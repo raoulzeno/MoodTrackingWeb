@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                extend: {
+                    fontFamily: {
+                    sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+                }
+            }
+            </script>
+        <title>Detail Log</title>
+    </head>
+    <body class="bg-slate-900 text-slate-100 font-sans p-4">
+        <nav class="flex items-center justify-between p-5 w-full bg-transparent relative top-0">
+            <button id="hamburger-btn" class="flex flex-col gap-1.5 focus:outline-none top-0">
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+                <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
+            </button>
+
+            <span id="tracker-title" class="text-xs uppercase tracking-widest text-slate-500 font-bold">Someone's Tracker</span>
+
+            <div class="w-6"></div>
+        </nav>
+        <div id="mobile-menu" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center gap-8">
+            <button onclick="toggleMenu()" class="absolute top-6 left-6 text-white text-3xl">&times;</button>
+
+            <a href="/" class="text-2xl font-bold text-white hover:text-indigo-400">Dashboard</a>
+            <a href="/detail" class="text-2xl font-bold text-white hover:text-indigo-400">Detail Log</a>
+            <a href="/visualizations" class="text-2xl font-bold text-white hover:text-indigo-400">Visualizations</a>
+            <a href="/notes-feed" class="text-2xl font-bold text-white hover:text-indigo-400">Notes Feed</a>
+            <a href="/settings" class="text-2xl font-bold text-white hover:text-indigo-400">Settings</a>
+
+            <button onclick="handleLogout()" class="text-2xl font-bold text-rose-500 hover:text-rose-400 mt-8">Log Out</button>
+        </div>
+        <hr>
+        <div id="detail-log" class="flex flex-col justify-center items-center gap-4">
+            <div class="self-start">
+                <h2 id="log-title" class="text-2xl font-bold pt-5">Log from: </h2>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Core Metrics</h2>
+                
+                <div class="flex flex-col gap-6">
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="mood" class="text-sm font-medium text-slate-300">Mood</label>
+                            <span id="mood-value" class="text-lg font-bold text-slate-300">-</span>
+                        </div>
+                        <input id="mood" type="range" min="1" max="10" value="5" oninput="document.getElementById('mood-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                    </div>
+
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="energy" class="text-sm font-medium text-slate-300">Energy</label>
+                            <span id="energy-value" class="text-lg font-bold text-slate-300">-</span>
+                        </div>
+                        <input id="energy" type="range" min="1" max="10" value="5" oninput="document.getElementById('energy-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                    </div>
+
+                    <div class="w-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="stress" class="text-sm font-medium text-slate-300">Stress</label>
+                            <span id="stress-value" class="text-lg font-bold text-slate-300">-</span>
+                        </div>
+                        <input id="stress" type="range" min="1" max="10" value="5" oninput="document.getElementById('stress-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Sleep</h2>
+                <div class="flex flex-col gap-2">
+                    <label for="sleep_quality" class="text-sm font-medium text-slate-300">Quality</label>
+                    <div class="flex flex-row justify-center gap-2">
+                        <div>
+                            <input type="radio" id="sleep-bad" name="sleep_quality" value="bad" class="hidden peer ">
+                            <label for="sleep-bad" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Bad</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="sleep-okay" name="sleep_quality" value="okay" checked class="hidden peer">
+                            <label for="sleep-okay" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Okay</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="sleep-good" name="sleep_quality" value="good" class="hidden peer">
+                            <label for="sleep-good" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Good</label>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="sleep-time" class="text-sm font-medium text-slate-300">Time</label>
+                        <span id="sleep-time-value" class="text-lg font-bold text-slate-300">7.5</span>
+                    </div>
+                    <input type="range" id="sleep-time" min="0" max="15" value="7.5" step="0.5" oninput="document.getElementById('sleep-time-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Emotions</h2>
+                <div class="flex flex-col gap-2">
+                    <label for="primary-emotion" class="text-sm font-medium text-slate-300">Primary Emotion</label>
+                    <div class="flex flex-wrap justify-left gap-2">
+                        <div>
+                            <input type="radio" id="prim-emotion-fear" name="primary-emotion" value="fear" class="hidden peer">
+                            <label for="prim-emotion-fear" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Fear</label>
+                        </div>    
+                        <div>
+                            <input type="radio" id="prim-emotion-anger" name="primary-emotion" value="anger" class="hidden peer">
+                            <label for="prim-emotion-anger" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Anger</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-sadness" name="primary-emotion" value="sadness" class="hidden peer">
+                            <label for="prim-emotion-sadness" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Sadness</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-neutral" name="primary-emotion" value="neutral" checked class="hidden peer">
+                            <label for="prim-emotion-neutral" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Neutral</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-joy" name="primary-emotion" value="joy" class="hidden peer">
+                            <label for="prim-emotion-joy" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Joy</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-disgust" name="primary-emotion" value="disgust" class="hidden peer">
+                            <label for="prim-emotion-disgust" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Disgust</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="prim-emotion-surprise" name="primary-emotion" value="surprise" class="hidden peer">
+                            <label for="prim-emotion-surprise" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Surprise</label>
+                        </div>
+                    </div>
+                    <label for="secondary-emotion" class="text-sm font-medium text-slate-300 pt-3">Secondary Emotion</label>
+                    <div class="flex flex-wrap justify-left gap-2">
+                        <div>
+                            <input type="radio" id="second-emotion-fear" name="secondary-emotion" value="fear" class="hidden peer">
+                            <label for="second-emotion-fear" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Fear</label>
+                        </div>    
+                        <div>
+                            <input type="radio" id="second-emotion-anger" name="secondary-emotion" value="anger" class="hidden peer">
+                            <label for="second-emotion-anger" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Anger</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-sadness" name="secondary-emotion" value="sadness" class="hidden peer">
+                            <label for="second-emotion-sadness" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Sadness</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-neutral" name="secondary-emotion" value="neutral" checked class="hidden peer">
+                            <label for="second-emotion-neutral" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Neutral</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-joy" name="secondary-emotion" value="joy" class="hidden peer">
+                            <label for="second-emotion-joy" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Joy</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-disgust" name="secondary-emotion" value="disgust" class="hidden peer">
+                            <label for="second-emotion-disgust" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Disgust</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="second-emotion-surprise" name="secondary-emotion" value="surprise" class="hidden peer">
+                            <label for="second-emotion-surprise" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Surprise</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Activities</h2>
+                <div class="flex flex-col gap-2">
+                        <div class="flex flex-wrap flex-row gap-2">
+                           <div id="activities-container" class="flex flex-wrap flex-row gap-2">
+                                <p class="text-slate-500 text-sm">Loading activities...</p>
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Work</h2>
+                <div class="flex flex-col gap-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="work-hours" class="text-sm font-medium text-slate-300">Hours</label>
+                        <span id="work-hours-value" class="text-lg font-bold text-slate-300">6</span>
+                    </div>
+                    <input type="range" id="work-hours" min="0" max="15" value="7.5" step="0.5" oninput="document.getElementById('work-hours-value').innerText = this.value" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer focus:outline-none
+                            /* Webkit */
+                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:bg-slate-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]
+                            /* Firefox */
+                            [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-slate-300 [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:transition-all [&::-moz-range-thumb]:hover:shadow-[0_0_12px_rgba(148,163,184,0.6)] focus:[&::-moz-range-thumb]:shadow-[0_0_12px_rgba(148,163,184,0.6)]">
+                    <label for="work-place" class="text-sm font-medium text-slate-300 pt-3">Place</label>
+                    <div class="flex flex-row justify-center gap-2">
+                        <div>
+                            <input type="radio" id="work-home" name="work-place" value="home" class="hidden peer">
+                            <label for="work-home" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Home</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="work-workplace" name="work-place" value="workplace" checked class="hidden peer">
+                            <label for="work-workplace" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Office</label>
+                        </div>
+                        <div>                        
+                            <input type="radio" id="work-outside" name="work-place" value="outside" class="hidden peer">
+                            <label for="work-outside" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Outside</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Contexts</h2>
+                <div class="flex flex-col gap-4">
+                <label for="social-context" class="text-sm font-medium text-slate-300">(Main) Social Context</label>
+                    <div class="flex flex-wrap justify-left gap-2">
+                        <div>
+                            <input type="radio" id="social-partner" name="social-context" value="partner" class="hidden peer">
+                            <label for="social-partner" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Partner</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-friends" name="social-context" value="friends" class="hidden peer">
+                            <label for="social-friends" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Friends</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-family" name="social-context" value="family" class="hidden peer">
+                            <label for="social-family" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Family</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-alone" name="social-context" value="alone" checked class="hidden peer">
+                            <label for="social-alone" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Alone</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-coworkers" name="social-context" value="coworkers" class="hidden peer">
+                            <label for="social-coworkers" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Co-Workers</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="social-strangers" name="social-context" value="strangers" class="hidden peer">
+                            <label for="social-strangers" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Strangers</label>
+                        </div>
+                    </div>
+                <label for="locations" class="text-sm font-medium text-slate-300">(Main) Location</label>
+                    <div class="flex flex-wrap justify-left gap-2">
+                        <div>
+                            <input type="radio" id="loc-home" name="locations" value="home" class="hidden peer">
+                            <label for="loc-home" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Home</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="loc-work" name="locations" value="work" checked class="hidden peer">
+                            <label for="loc-work" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Work</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="loc-outdoors" name="locations" value="outdoors" class="hidden peer">
+                            <label for="loc-outdoors" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Outdoors</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="loc-transit" name="locations" value="transit" class="hidden peer">
+                            <label for="loc-transit" class="inline-block rounded-full px-4 py-2 border border-slate-700 bg-slate-800 text-slate-300 cursor-pointer transition-all duration-200 select-none peer-checked:bg-indigo-600 peer-checked:border-indigo-500 peer-checked:text-white peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.4)]">Transit</label>
+                        </div>
+                    </div>
+                <label for="substances" class="text-sm font-medium text-slate-300">Substances Consumed</label>
+                <div id="substances-container" class="flex flex-col gap-4">
+                    <p class="text-slate-500 text-sm">Loading substances...</p>
+                </div>    
+                
+            </div>
+            <div class="bg-slate-800 rounded-xl shadow-sm p-6 w-full">
+                <h2 class="text-xl font-bold mb-6">Notes</h2>
+                <div class="flex flex-col gap-2">
+                    <label for="notes-textarea" class="text-sm font-medium text-slate-400">Notes/Diary</label>
+                    
+                    <textarea 
+                        id="notes-textarea" 
+                        name="notes" 
+                        rows="4" 
+                        placeholder="How was your day? Any specific triggers or highlights?" 
+                        class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-none"
+                    ></textarea>
+                </div>
+            </div>
+            <button id="save-btn" class="w-full py-4 bg-green-600 hover:bg-green-500 active:scale-95 text-white font-bold rounded-2xl shadow-lg shadow-green-500/20 transition-all duration-200 flex items-center justify-center gap-2">Save Entry!</button>
+        </div>
+        <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 flex items-center p-4 mb-4 w-full max-w-xs text-slate-100 bg-slate-800 rounded-2xl shadow-lg border border-slate-700 transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
+            <div id="toast-icon" class="inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl">
+                ✅
+            </div>
+            <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
+        </div>
+        <script type="module">
+            import { supabaseClient } from "/static/js/supabaseConfig.js"
+            import { toggleMenu, loadTrackingItems, showToast, getWeather, handleLogout, updateBanner} from "/static/js/baseFunctions.js"
+
+            document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
+
+            const ENTRY_ID = "{{ entry_id }}";
+
+            async function prefillForm() {
+                const { data: { session }} = await supabaseClient.auth.getSession();
+                if (!session) {
+                    return;
+                }
+
+                fetch(`/api/get-single-log/${ENTRY_ID}`, {
+                    headers: { "Authorization" : `Bearer ${session.access_token}` }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("log-title").innerText = `Log from:\n${data.date}`
+
+                    document.getElementById("mood").value = data.mood;
+                    document.getElementById("mood-value").innerText = data.mood;
+
+                    document.getElementById("energy").value = data.energy;
+                    document.getElementById("energy-value").innerText = data.energy;
+
+                    document.getElementById("stress").value = data.stress;
+                    document.getElementById("stress-value").innerText = data.stress;
+
+                    document.getElementById("sleep-time").value = data.sleep_time;
+                    document.getElementById("sleep-time-value").innerText = data.sleep_time;
+
+                    document.getElementById("work-hours").value = data.work_hours;
+                    document.getElementById("work-hours-value").innerText = data.work_hours;
+
+                    document.getElementById("notes-textarea").value = data.notes || "";
+
+                    if (data.sleep_quality) {
+                        document.querySelector(`input[name="sleep_quality"][value="${data.sleep_quality}"]`).checked = true;
+                    }
+
+                    if (data.primary_emotion) {
+                        document.querySelector(`input[name="primary-emotion"][value="${data.primary_emotion}"]`).checked = true;
+                    }
+
+                    if (data.secondary_emotion) {
+                        document.querySelector(`input[name="secondary-emotion"][value="${data.secondary_emotion}"]`).checked = true;
+                    }
+
+                    if (data.work_place) {
+                        document.querySelector(`input[name="work-place"][value="${data.work_place}"]`).checked = true;
+                    }
+
+                    if (data.social_context) {
+                        document.querySelector(`input[name="social-context"][value="${data.social_context}"]`).checked = true;
+                    }
+
+                    if (data.location) {
+                        document.querySelector(`input[name="location"][value="${data.location}"]`).checked = true;
+                    }
+                    
+                }).catch(err => console.error("Error prefilling form:", err))
+            }
+
+            const sliders = ["mood", "energy", "stress", "sleep-time", "work-hours", "alcohol", "sugar", "caffeine", "meds"];
+
+            function displaySlider(sliderId, valueId, checkboxElement) {
+                let slider = document.getElementById(sliderId);
+                let displayer = document.getElementById(valueId);
+
+                if (checkboxElement.checked) {
+                    slider.style.display = "block";
+                    displayer.style.display = "block";
+                } else {
+                    slider.style.display = "none";
+                    displayer.style.display = "none";
+
+                    slider.value = 1;
+                    displayer.innerText = "1 unit(s)";
+                }
+            }
+
+            document.getElementById("save-btn").addEventListener("click", async function (event) {
+
+                event.preventDefault();
+
+                const { data: { session }} = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    window.location.href = "/login";
+                    return;
+                }
+
+                let sleepQuality = document.querySelector("input[name='sleep_quality']:checked").value;
+                let primaryEmotion = document.querySelector("input[name='primary-emotion']:checked").value;
+                let secondaryEmotion = document.querySelector("input[name='secondary-emotion']:checked").value;
+                let workPlace = document.querySelector("input[name='work-place']:checked").value;
+                let socialContext = document.querySelector("input[name='social-context']:checked").value;
+                let location = document.querySelector("input[name='locations']:checked").value;
+                let selectedActivities = [];
+                let checkedBoxes = document.querySelectorAll("input[name='activities']:checked");
+                let loggedSubstances = [];
+                let checkedSubstances = document.querySelectorAll("input[name='substances']:checked");
+
+                checkedSubstances.forEach(function(box) {
+                    let sliderId = box.value.replace("container-", "");
+                    let slider = document.getElementById(sliderId)
+
+                    if (slider) {
+                        loggedSubstances.push({
+                            id: parseInt(box.dataset.id),
+                            dosage: parseInt(slider.value)
+                        })
+                    }
+                });
+
+                checkedBoxes.forEach(function(box) {
+                    selectedActivities.push(parseInt(box.dataset.id));
+                    console.log(selectedActivities)
+                })
+
+                const payload = {
+                    mood: document.getElementById("mood").value,
+                    energy: document.getElementById("energy").value,
+                    stress: document.getElementById("stress").value,
+                    sleep_quality: sleepQuality,
+                    sleep_time: document.getElementById("sleep-time").value,
+                    primary_emotion: primaryEmotion,
+                    secondary_emotion: secondaryEmotion,
+                    work_hours: document.getElementById("work-hours").value,
+                    work_place: workPlace,
+                    social_context: socialContext,
+                    location: location,
+                    notes: document.getElementById("notes-textarea").value,
+                    activities: selectedActivities,
+                    substances: loggedSubstances,
+                };
+
+                fetch(`/api/update-log/${ENTRY_ID}`, {
+                    method: "PUT",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(async response => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        showToast(data.message, true);
+                        throw new Error(data.message);
+                        setTimeout(() => {
+                            window.location.href = "/";
+                        }, 1500);
+                        
+                    };
+
+                    return data;
+                })
+                .then(data => {
+                    console.log("Success:", data);
+                    showToast("Entry changed successfully", false);
+                    setTimeout(() => {
+                        window.location.href = "/edit-logs";
+                    }, 1500)
+                    
+                })
+                .catch((error) => {
+                    console.error("Error:", error)
+                })
+            })
+
+            window.addEventListener("DOMContentLoaded", () => {
+                updateBanner();
+                loadTrackingItems().then(() => {
+                    prefillForm();
+                });
+            });
+
+            window.toggleMenu = toggleMenu;
+            window.displaySlider = displaySlider;
+            window.handleLogout = handleLogout;
+        </script>
+    </body>
+</html>

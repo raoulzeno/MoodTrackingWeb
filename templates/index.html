@@ -29,7 +29,7 @@
                 <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
             </button>
 
-            <span id="tracker-title" class="text-xs uppercase tracking-widest text-slate-500 font-bold">Raoul's Tracker</span>
+            <span id="tracker-title" class="text-xs uppercase tracking-widest text-slate-500 font-bold">Someone's Tracker</span>
 
             <div class="w-6"></div>
         </nav>
@@ -125,36 +125,11 @@
             </div>
             <div id="toast-message" class="ml-3 text-sm font-semibold">Message goes here.</div>
         </div>
-        <script>
-            const SUPABASE_URL = "https://zjyypccuhagrsjbxfipi.supabase.co"
-            const SUPABASE_ANON_KEY = "sb_publishable_AP_aE9BRhq4hzpNBbsRqNw_gxAoXF67"
-            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        <script type="module">
+            import { supabaseClient } from "/static/js/supabaseConfig.js"
+            import { showToast, toggleMenu, handleLogout, getWeather, updateBanner } from "/static/js/baseFunctions.js"
 
             document.getElementById("hamburger-btn").addEventListener("click", toggleMenu);
-
-            function showToast(message, isError = false) {
-                const toast = document.getElementById("toast");
-                const toastMessage = document.getElementById("toast-message");
-                const toastIcon = document.getElementById("toast-icon");
-
-                toastMessage.innerText = message;
-
-                if (isError) {
-                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-red-500/20 text-red-400 text-xl";
-                    toastIcon.innerHTML = "❌";
-                } else {
-                    toastIcon.className = "inline-flex items-center justify-center shrink-0 w-8 h-8 rounded-lg bg-green-500/20 text-green-400 text-xl";
-                    toastIcon.innerHTML = "✅"
-                }
-
-                toast.classList.remove("opacity-0", "translate-y-4", "pointer-events-none");
-                toast.classList.add("opacity-100", "translate-y-0")
-
-                setTimeout(() => {
-                    toast.classList.remove("opacity-100", "translate-y-0");
-                    toast.classList.add("opacity-0", "translate-y-4", "pointer-events-none")
-                }, 3000);
-            }
 
             function showView(viewId) {
                 document.getElementById('dashboard-view').style.display = 'none';
@@ -255,61 +230,16 @@
                 })
                 .then(data => {
                     document.getElementById("mood-score").innerText = data["mood_score"];
-                    document.getElementById("mood-score").className = `font-bold justify-self-center text-6xl ${getScoreColor("mood", data["mood_score"])}`
+                    document.getElementById("mood-score").className = `font-bold justify-self-center text-6xl ${data.mood_color}`
                     document.getElementById("energy-score").innerText = data["energy_score"];
-                    document.getElementById("energy-score").className = `font-bold justify-self-center text-6xl ${getScoreColor("energy", data["energy_score"])}`
+                    document.getElementById("energy-score").className = `font-bold justify-self-center text-6xl ${data.energy_color}`
                     document.getElementById("stress-score").innerText = data["stress_score"];
-                    document.getElementById("stress-score").className = `font-bold justify-self-center text-6xl ${getScoreColor("stress", data["stress_score"])}`
+                    document.getElementById("stress-score").className = `font-bold justify-self-center text-6xl ${data.stress_color}`
                 })
                 .catch(error => {
                     showToast("Error: " + error.message, true);
                 });
             };
-
-            async function getWeather() {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-
-                if (!session) {
-                    window.location.href = "/login";
-                    return;
-
-                }
-                fetch("/get-weather", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${session.access_token}`
-                    }
-                })
-                .then(async response => {
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.message);
-                    return data
-                })
-                .then(data => {
-                    document.getElementById("weather-display").innerText = data["weather"]
-                })
-                .catch(error => {
-                    document.getElementById("weather-display").innerText = "Could not fetch weather data."
-                    showToast("Error: " + error.message, true)
-                })
-            }
-
-            function getScoreColor(type, score) {
-                if (type === "stress") {
-                    if (score >= 7) return "text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.4)]";
-                    if (score >= 4) return "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.3)]";
-                    return "text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]"
-                } else {
-                    if (score >= 7) return "text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]";
-                    if (score >= 4) return "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.3)]";
-                    return "text-red-400 drop-shadow-[0_0_8px_rgba(248,113,113,0.4)]"
-                }
-            }
-
-            function toggleMenu() {
-                const menu = document.getElementById("mobile-menu");
-                menu.classList.toggle("hidden");
-            }
 
             const deleteFirst = document.getElementById("delete-first");
             const safety = document.getElementById("sure-check");
@@ -384,29 +314,25 @@
                 const { data: { user }} = await supabaseClient.auth.getUser();
                 if (user && user.user_metadata) {
                     const name = user.user_metadata.display_name;
-                    document.getElementById("tracker-title").innerText = `${name}'s Tracker`
                     document.getElementById("welcome-box").innerText = `Welcome back, ${name}`
                 }
             }
-
+            
             window.addEventListener("DOMContentLoaded", () => {
+                updateBanner();
                 getAverages();
                 getWeather();
                 getUserName();
             })
 
-            async function handleLogout() {
-                try {
-                    const { error } = await supabaseClient.auth.signOut();
-
-                    if (error) throw error;
-
-                    window.location.href = "/login";
-                } catch (error) {
-                    console.error("Error logging out: ", error.message);
-                    showToast("Failed to log out: " + error.message, true)
-                }
-            }
+            window.toggleMenu = toggleMenu;
+            window.showView = showView;
+            window.setMood = setMood;
+            window.setEnergy = setEnergy;
+            window.setStress = setStress;
+            window.safetyCheck = safetyCheck;
+            window.deleteEntry = deleteEntry;
+            window.handleLogout = handleLogout;
 
         </script>
     </body>

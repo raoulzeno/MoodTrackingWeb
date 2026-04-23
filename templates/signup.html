@@ -32,6 +32,18 @@
                     <label class="block text-sm font-bold text-slate-400 mb-1">Name</label>
                     <input type="text" id="name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Jane">
                 </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-400 mb-1">City (for weather)</label>
+                    <input list="cities" id="city" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g., Zurich" value="Basel">
+                    <datalist id="cities">
+                        <option value="Basel"></option>
+                        <option value="Zurich"></option>
+                        <option value="Winterthur"></option>
+                        <option value="Zollikerberg"></option>
+                        <option value="Nürnberg"></option>
+                        <option value="Lausen"></option>
+                    </datalist>
+                </div>
 
                 <div>
                     <label class="block text-sm font-bold text-slate-400 mb-1">Email</label>
@@ -81,7 +93,8 @@
                     password: password,
                     options: {
                         data: {
-                            display_name: name
+                            display_name: name,
+                            city: document.getElementById("city").value || "Zurich"
                         }
                     }
                 });

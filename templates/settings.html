@@ -58,6 +58,22 @@
                     <label for="userName" class="text-sm font-medium text-gray-600 mb-1">Name</label>
                     <input type="text" id="userName" value="-" class="w-full bg-slate-800 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none transition">
                 </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-400 mb-1">Name</label>
+                    <input type="text" id="name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Jane">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-400 mb-1">City (for weather)</label>
+                    <input list="cities" id="city" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g., Zurich" value="Basel">
+                    <datalist id="cities">
+                        <option value="Basel"></option>
+                        <option value="Zurich"></option>
+                        <option value="Winterthur"></option>
+                        <option value="Zollikerberg"></option>
+                        <option value="Nürnberg"></option>
+                        <option value="Lausen"></option>
+                    </datalist>
+                </div>
                 <div class="flex flex-col px-1">
                     <label for="userEmail" class="text-sm font-medium text-gray-600 mb-1">Email</label>
                     <input type="email" id="userEmail" value="-" class="w-full border bg-slate-800 border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none transition">
@@ -309,6 +325,7 @@
             async function changeUserNameEmail() {
                 const newUserName = document.getElementById("userName").value.trim();
                 const newEmail = document.getElementById("userEmail").value.trim();
+                const newCity = document.getElementById("city").value.trim();
 
                 const saveButton = document.getElementById("saveProfileBtn");
                 saveButton.disabled = true;
@@ -317,7 +334,8 @@
                 const { data, error } = await supabaseClient.auth.updateUser({
                     email: newEmail,
                     data: {
-                        display_name: newUserName
+                        display_name: newUserName,
+                        city: newCity,
                     }
                 });
 
@@ -340,6 +358,8 @@
                 if (user && user.user_metadata) {
                     const name = user.user_metadata.display_name;
                     const email = user.email;
+                    const city = user.user_metadata.city;
+                    document.getElementById("city").value = `${city}`
                     document.getElementById("userName").value = `${name}`
                     document.getElementById("userEmail").value = `${email}`
                 }

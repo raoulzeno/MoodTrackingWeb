@@ -36,6 +36,15 @@ entry_activities = db.Table('entry_activities',
 )
 
 CORE_EMOTIONS = ["fear", "anger", "sadness", "neutral", "joy", "disgust", "surprise"]
+CITY_COORDINATES = {
+    "basel": {"lat": 47.5596, "lon": 7.5886},
+    "zurich": {"lat": 47.3769, "lon": 8.5417},
+    "winterthur": {"lat": 47.4991, "lon": 8.7291},
+    "zollikerberg": {"lat": 47.3421, "lon": 8.5910},
+    "nurnberg": {"lat": 49.4521, "lon": 11.0767},
+    "lausen": {"lat": 47.4716, "lon": 7.7634}
+}
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -239,7 +248,12 @@ def notes_feed():
 
 @app.route("/get-weather", methods=["GET"])
 def fetch_weather():
-    weather_string = get_weather()
+    city = request.args.get("city", "Zurich")
+    clean_city = city.strip().lower().replace("ü", "u").replace("ö", "o")
+    coords = CITY_COORDINATES.get(clean_city, CITY_COORDINATES["zurich"])
+    latitude = coords["lat"]
+    longitude = coords["lon"]
+    weather_string = get_weather(longitude=longitude, latitude=latitude)
     if not weather_string:
         return jsonify({
             "status": "error",
@@ -426,8 +440,12 @@ def save_detail_log(current_user_id):
         elif existing_entry.entry_type == "quick":
             db.session.delete(existing_entry)
             db.session.flush()
+    user_city = user_city = data.get("city", "zurich").strip().lower().replace("ü", "u").replace("ö", "o")
 
-    raw_weather = get_weather()
+    coords = CITY_COORDINATES.get(user_city, CITY_COORDINATES["zurich"])
+
+
+    raw_weather = get_weather(longitude=coords["lon"], latitude=coords["lat"])
     clean_weather = raw_weather[2:] if raw_weather else None
 
     new_entry = MoodEntry(

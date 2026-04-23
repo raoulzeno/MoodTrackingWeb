@@ -97,7 +97,8 @@ export  async function getWeather() {
                 }
 
                 try {
-                    const response = await fetch("/get-weather", {
+                    const userCity = session.user.user_metadata.city || "Zurich"
+                    const response = await fetch(`/get-weather?city=${encodeURIComponent(userCity)}`, {
                         method: "GET",
                         headers: {
                             "Authorization": `Bearer ${session.access_token}`

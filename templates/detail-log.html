@@ -434,7 +434,7 @@
 
                 try {
                     const response = await fetch("/get-quicklog-values", {
-                        header: {
+                        headers: {
                             "Authorization": `Bearer ${session.access_token}`
                         }
                     })

@@ -96,24 +96,20 @@ export  async function getWeather() {
                     return;
                 }
 
-                fetch("/get-weather", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${session.access_token}`
-                    }
-                })
-                .then(async response => {
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.message);
-                    return data
-                })
-                .then(data => {
+                try {
+                    const response = await fetch("/get-weather", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    });
+                    const data = await response.json()
+                    if (!response.ok) throw new Error(data.message)
+                    
                     document.getElementById("weather-display").innerText = data["weather"];
-                })
-                .catch(error => {
-                    document.getElementById("weather-display").innerText = "Could not fetch weather data."
-                    showToast("Error: " + error.message)
-                })
+                } catch (error) {
+                    showToast("Error" + error.message, true)
+                }  
             }
 
 export  function showError(message) {

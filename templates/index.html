@@ -221,28 +221,25 @@
                     return;    
                 }
 
-                fetch("/get-averages", {
-                    method: "GET",
-                    headers: {
-                        "Authorization" : `Bearer ${session.access_token}`
-                    }
-                })
-                .then(async response => {
+                try {
+                    const response = await fetch("/get-averages", {
+                        method: "GET",
+                        headers: {
+                            "Authorization" : `Bearer ${session.access_token}`
+                        }
+                    });
                     const data = await response.json();
-                    if (!response.ok) throw new Error(data.message);
-                    return data
-                })
-                .then(data => {
+                    if (!response.ok) throw new Error(data.message)
+
                     document.getElementById("mood-score").innerText = data["mood_score"];
                     document.getElementById("mood-score").className = `font-bold justify-self-center text-6xl ${data.mood_color}`
                     document.getElementById("energy-score").innerText = data["energy_score"];
                     document.getElementById("energy-score").className = `font-bold justify-self-center text-6xl ${data.energy_color}`
                     document.getElementById("stress-score").innerText = data["stress_score"];
                     document.getElementById("stress-score").className = `font-bold justify-self-center text-6xl ${data.stress_color}`
-                })
-                .catch(error => {
+                } catch(error) {
                     showToast("Error: " + error.message, true);
-                });
+                };
             };
 
             const deleteFirst = document.getElementById("delete-first");

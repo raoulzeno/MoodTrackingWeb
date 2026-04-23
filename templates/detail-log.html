@@ -432,27 +432,24 @@
                     return;
                 }
 
-                fetch("/get-quicklog-values", {
-                    headers: {
-                        "Authorization": `Bearer ${session.access_token}`
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error("Something went wrong...");
-                    return response.json();
-                })
-                .then(data => {
+                try {
+                    const response = await fetch("/get-quicklog-values", {
+                        header: {
+                            "Authorization": `Bearer ${session.access_token}`
+                        }
+                    })
+                    const data = await response.json()
+                    if (!response.ok) throw new Error(data.message)
+
                     document.getElementById("mood").value = data.mood_value;
                     document.getElementById("energy").value = data.energy_value;
                     document.getElementById("stress").value = data.stress_value;
                     document.getElementById("mood-value").innerText = data.mood_value;
                     document.getElementById("energy-value").innerText = data.energy_value;
                     document.getElementById("stress-value").innerText = data.stress_value;
-
-                })
-                .catch(error => {
-                    console.error("Error fetching stuff...", error);
-                });
+                } catch (error) {
+                    showToast("Error: " + error.message, true)
+                }
             }
 
             window.addEventListener("DOMContentLoaded", async () => {

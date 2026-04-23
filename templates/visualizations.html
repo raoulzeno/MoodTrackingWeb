@@ -944,7 +944,7 @@
             }
 
             window.addEventListener("DOMContentLoaded", async () =>{
-                const loader = document.getElementById("global-leader")
+                const loader = document.getElementById("global-loader")
                 try {
                     updateBanner();
                     await loadTrendChart();
@@ -961,7 +961,7 @@
                     loader.classList.add("opacity-0", "pointer-events-none");
                     setTimeout(() => {
                         loader.remove()
-                    }, 3000)
+                    }, 300)
                 }
             })
             window.toggleMenu = toggleMenu;

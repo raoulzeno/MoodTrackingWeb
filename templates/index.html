@@ -22,6 +22,10 @@
         <title>Mood Tracker</title>
     </head>
     <body class="bg-slate-900 text-slate-100 font-sans p-3">
+        <div id="global-loader" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex flex-col items-center justify-center transition-opacity duration-300">
+            <div class="w-12 h-12 border-4 border-slate-700 border-t-indigo-500 rounded-full animate-spin"></div>
+            <p class="mt-4 text-indigo-400 font-bold tracking-widest uppercase text-sm animate-pulse">Crunching Data...</p>
+        </div>
         <nav class="flex p-4 items-center justify-between p-3 w-full bg-transparent relative top-0">
             <button id="hamburger-btn" class="flex flex-col gap-1.5 focus:outline-none top-0">
                 <div class="w-6 h-0.5 bg-white rounded-full transition-all group-hover:bg-indigo-400"></div>
@@ -318,11 +322,23 @@
                 }
             }
             
-            window.addEventListener("DOMContentLoaded", () => {
-                updateBanner();
-                getAverages();
-                getWeather();
-                getUserName();
+            window.addEventListener("DOMContentLoaded", async () => {
+                const loader = document.getElementById("global-loader")
+                try {
+                    await updateBanner();
+                    await getAverages();
+                    await getWeather();
+                    await getUserName();
+                } catch (error) {
+                    console.log(error);
+                    showToast("Something went wrong, reloading", true)
+                    window.location.reload();
+                } finally {
+                    loader.classList.add("opacity-0", "pointer-events-none");
+                    setTimeout(() => {
+                        loader.remove()
+                    }, 300)
+                }
             })
 
             window.toggleMenu = toggleMenu;

@@ -4,6 +4,7 @@ import csv
 import io
 from jwt import PyJWKClient
 from functools import wraps
+from sqlalchemy.orm import selectinload, joinedload
 from flask import Flask, render_template, request, jsonify, redirect, url_for, make_response
 from supabase import create_client, Client
 from flask_sqlalchemy import SQLAlchemy
@@ -887,7 +888,10 @@ def get_work_insights(current_user_id):
 @token_required
 def get_act_subst(current_user_id):
     thirty_days_ago = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=30)
-    entries = MoodEntry.query.filter(
+    entries = MoodEntry.query.options(
+        selectinload(MoodEntry.activities),
+        selectinload(MoodEntry.substances).joinedload(EntrySubstance.substance)
+    ).filter(
         MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= thirty_days_ago
     ).all()

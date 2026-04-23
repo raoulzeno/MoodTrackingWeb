@@ -939,15 +939,15 @@
                 }
             }
 
-            window.addEventListener("DOMContentLoaded", () =>{
-                updateBanner();
-                loadTrendChart();
-                loadEnvironmentChart();
-                loadCalMap();
-                loadEmotionMap();
-                loadActivitiesSubstances();
-                loadSleepViz();
-                loadWorkViz();
+            window.addEventListener("DOMContentLoaded", async () =>{
+                await updateBanner();
+                await loadTrendChart();
+                await loadEnvironmentChart();
+                await loadCalMap();
+                await loadEmotionMap();
+                await loadActivitiesSubstances();
+                await loadSleepViz();
+                await loadWorkViz();
             })
             window.toggleMenu = toggleMenu;
             window.showToast = showToast;

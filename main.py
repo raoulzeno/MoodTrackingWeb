@@ -600,21 +600,44 @@ def get_trend_data(current_user_id):
     entries = MoodEntry.query.filter(
         MoodEntry.user_id == current_user_id,
         MoodEntry.timestamp >= seven_days_ago
-    ).order_by(MoodEntry.timestamp.asc()).all()
+    ).all()
 
-    if not entries:
-        return jsonify({
-            "labels": [],
-            "moods": [],
-            "energies": [],
-            "stress": []
-        }), 200
+    daily_data = {}
+    for i in range(7):
+        day_date = seven_days_ago + timedelta(days=i)
+        day_str = day_date.strftime("%a")
+        daily_data[day_str] = {"mood" : [], "energy" : [], "stress" : []}
+
+    for e in entries:
+        day_str = e.timestamp.strftime("%a")
+        if day_str in daily_data:
+            daily_data[day_str]["mood"].append(e.mood)
+            daily_data[day_str]["energy"].append(e.energy)
+            daily_data[day_str]["stress"].append(e.stress)
+
+    labels = []
+    moods = []
+    energies = []
+    stress = []
+
+    for i in range(7):
+        day_date = seven_days_ago + timedelta(days=i)
+        day_str = day_date.strftime("%a")
+        labels.append(day_str)
+        
+        m_list = daily_data[day_str]["mood"]
+        e_list = daily_data[day_str]["energy"]
+        s_list = daily_data[day_str]["stress"]
+
+        moods.append(round(sum(m_list)/len(m_list), 1) if m_list else None)
+        energies.append(round(sum(e_list)/len(e_list), 1) if e_list else None)
+        stress.append(round(sum(s_list)/len(s_list), 1) if s_list else None)
     
     data = {
-        "labels": [e.timestamp.strftime("%a") for e in entries],
-        "moods": [e.mood for e in entries],
-        "energies": [e.energy for e in entries],
-        "stress": [e.stress for e in entries]
+        "labels": labels,
+        "moods": moods,
+        "energies": energies,
+        "stress": stress
     }
 
     return jsonify(data), 200

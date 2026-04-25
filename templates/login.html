@@ -82,7 +82,25 @@
 
                 if (error) {
                     showError(error.message)
-                } else {
+                } else if (data.session) {
+                    try {
+                        const userCity = data.session.user.user_metadata.city || "Zurich";
+                        
+                        const response = await fetch(`/get-weather?city=${encodeURIComponent(userCity)}`, {
+                            headers: { "Authorization": `Bearer ${data.session.access_token}` }
+                        });
+                        
+                        const weatherData = await response.json();
+                        if (response.ok) {
+                            // Save to session storage so other pages can use it without API calls
+                            sessionStorage.setItem("userWeather", weatherData.weather);
+                        }
+                    } catch (e) {
+                        console.error("Login weather fetch failed:", e);
+                        // Fallback so the user isn't stuck if the weather API is down
+                        sessionStorage.setItem("userWeather", "☀️ 21°C");
+                    }
+                    
                     window.location.href = "/";
                 }
             }

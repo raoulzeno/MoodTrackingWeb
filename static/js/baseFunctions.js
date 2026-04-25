@@ -88,30 +88,18 @@ export  async function loadTrackingItems() {
                 .catch(error => console.error("Error loading itmes:", error))
             }
 
-export  async function getWeather() {
-                const { data : { session }} = await supabaseClient.auth.getSession();
+export async function getWeather() {
+    const cachedWeather = sessionStorage.getItem("userWeather");
+    const weatherEl = document.getElementById("weather-display");
 
-                if (!session) {
-                    window.location.href = "/login";
-                    return;
-                }
-
-                try {
-                    const userCity = session.user.user_metadata.city || "Zurich"
-                    const response = await fetch(`/get-weather?city=${encodeURIComponent(userCity)}`, {
-                        method: "GET",
-                        headers: {
-                            "Authorization": `Bearer ${session.access_token}`
-                        }
-                    });
-                    const data = await response.json()
-                    if (!response.ok) throw new Error(data.message)
-                    
-                    document.getElementById("weather-display").innerText = data["weather"];
-                } catch (error) {
-                    showToast("Error" + error.message, true)
-                }  
-            }
+    if (cachedWeather && weatherEl) {
+        weatherEl.innerText = cachedWeather;
+    } else {
+        // Fallback: If for some reason login didn't catch it, 
+        // you can decide to fetch it here or just show a default.
+        if (weatherEl) weatherEl.innerText = "☀️ 21°C";
+    }
+}
 
 export  function showError(message) {
                 const errorDiv = document.getElementById("auth-error");

@@ -255,10 +255,9 @@ def fetch_weather():
         longitude = coords["lon"]
         weather_string = get_weather(longitude=longitude, latitude=latitude)
         if not weather_string:
-            if not weather_string:
-                return jsonify({"status": "success", "weather": "☀️ 21°C"}), 200
-                
-            return jsonify({"status": "success", "weather" : weather_string}), 200
+            return jsonify({"status": "success", "weather": "☀️ 21°C"}), 200
+            
+        return jsonify({"status": "success", "weather" : weather_string}), 200
     except Exception as e:
         return jsonify({"status": "success", "weather": "☀️ 21°C"}), 200
 

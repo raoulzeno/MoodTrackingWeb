@@ -437,13 +437,6 @@ def save_detail_log(current_user_id):
         elif existing_entry.entry_type == "quick":
             db.session.delete(existing_entry)
             db.session.flush()
-    user_city = user_city = data.get("city", "zurich").strip().lower().replace("ü", "u").replace("ö", "o")
-
-    coords = CITY_COORDINATES.get(user_city, CITY_COORDINATES["zurich"])
-
-
-    raw_weather = get_weather(longitude=coords["lon"], latitude=coords["lat"])
-    clean_weather = raw_weather[2:] if raw_weather else None
 
     new_entry = MoodEntry(
         user_id=current_user_id,
